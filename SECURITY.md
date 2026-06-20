@@ -24,8 +24,12 @@ HTTP client beyond the S3 SDK).
 
 ## Credentials
 
-- Credentials are read from explicit config, the environment, and the shared AWS
-  credentials file — lode does not invent its own credential store.
+- Credentials are resolved in a predictable order: explicit config → environment →
+  shared AWS credentials file (honoring the configured profile / `AWS_PROFILE`) →
+  IAM (EC2 instance role, ECS, and EKS/IRSA). The IAM metadata probe is
+  timeout-bounded, so off-cloud it fails fast rather than hanging. This lets CI on
+  EKS/GKE authenticate with short-lived role credentials instead of static keys.
+  lode does not invent its own credential store.
 - **Set secrets without exposing them**: omit the value and pipe it in, so it never
   lands in argv / `ps` / shell history:
   `printf '%s' "$KEY" | lode remote modify <name> secret_access_key`

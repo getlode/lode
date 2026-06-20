@@ -5,9 +5,11 @@ package remote
 import (
 	"context"
 	"errors"
+	"net/http"
 	"net/url"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/getlode/lode/internal/repo"
 	"github.com/minio/minio-go/v7"
@@ -45,13 +47,16 @@ func NewS3(r repo.Remote) (*S3, error) {
 	if r.AccessKeyID != "" {
 		creds = credentials.NewStaticV4(r.AccessKeyID, r.SecretAccessKey, r.SessionToken)
 	} else {
-		// Env + shared-credentials file. IAM (EC2/ECS instance role) is omitted
-		// on purpose: minio's IAM provider panics on a nil HTTP client when no
-		// other creds are present, and probing the metadata endpoint would hang
-		// off-EC2. It can be added later with an explicit, timeout-bounded client.
+		// Predictable precedence: environment -> shared-credentials file (honoring
+		// the configured profile / AWS_PROFILE) -> IAM (EC2 instance role, ECS, and
+		// EKS/IRSA via the container/web-identity endpoints). The IAM provider is
+		// given an explicit timeout-bounded HTTP client so that off-cloud (no
+		// metadata endpoint) it fails fast instead of hanging — and never panics on
+		// a nil client.
 		creds = credentials.NewChainCredentials([]credentials.Provider{
 			&credentials.EnvAWS{},
-			&credentials.FileAWSCredentials{},
+			&credentials.FileAWSCredentials{Profile: r.Profile},
+			&credentials.IAM{Client: &http.Client{Timeout: 5 * time.Second}},
 		})
 	}
 
