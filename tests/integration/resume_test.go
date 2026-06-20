@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/jtorchia/lode/internal/repo"
-	"github.com/jtorchia/lode/internal/transfer"
+	"github.com/getlode/lode/internal/repo"
+	"github.com/getlode/lode/internal/transfer"
 )
 
 // TestResumeIdempotent verifies that re-running push after an interruption does

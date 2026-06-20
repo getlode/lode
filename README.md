@@ -16,8 +16,8 @@ cambió. Y **coexiste con DVC**: ambos operan el mismo repo de forma intercambia
 ## Instalación
 
 ```bash
-go install github.com/jtorchia/lode/cmd/lode@latest
-# o descargá un binario de Releases / brew install jtorchia/tap/lode
+go install github.com/getlode/lode/cmd/lode@latest
+# o descargá un binario de Releases / brew install getlode/tap/lode
 ```
 
 ## Uso

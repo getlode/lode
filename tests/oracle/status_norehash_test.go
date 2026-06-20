@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/jtorchia/lode/internal/hashfile"
+	"github.com/getlode/lode/internal/hashfile"
 )
 
 // TestNoRehash proves the state DB short-circuits hashing for unchanged files,

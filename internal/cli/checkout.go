@@ -6,11 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jtorchia/lode/internal/cache"
-	"github.com/jtorchia/lode/internal/checkout"
-	"github.com/jtorchia/lode/internal/dvcfile"
-	"github.com/jtorchia/lode/internal/lock"
-	"github.com/jtorchia/lode/internal/repo"
+	"github.com/getlode/lode/internal/cache"
+	"github.com/getlode/lode/internal/checkout"
+	"github.com/getlode/lode/internal/dvcfile"
+	"github.com/getlode/lode/internal/lock"
+	"github.com/getlode/lode/internal/repo"
 	"github.com/spf13/cobra"
 )
 

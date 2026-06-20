@@ -6,7 +6,7 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/jtorchia/lode/internal/repo"
+	"github.com/getlode/lode/internal/repo"
 	"github.com/spf13/cobra"
 )
 

@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jtorchia/lode/internal/cache"
-	"github.com/jtorchia/lode/internal/dvcfile"
-	"github.com/jtorchia/lode/internal/hashfile"
+	"github.com/getlode/lode/internal/cache"
+	"github.com/getlode/lode/internal/dvcfile"
+	"github.com/getlode/lode/internal/hashfile"
 )
 
 // fileMode is the writable mode for materialized workspace files (cache objects

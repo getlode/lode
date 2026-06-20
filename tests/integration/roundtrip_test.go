@@ -15,13 +15,13 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/jtorchia/lode/internal/cache"
-	"github.com/jtorchia/lode/internal/checkout"
-	"github.com/jtorchia/lode/internal/dvcfile"
-	"github.com/jtorchia/lode/internal/hashfile"
-	"github.com/jtorchia/lode/internal/remote"
-	"github.com/jtorchia/lode/internal/repo"
-	"github.com/jtorchia/lode/internal/transfer"
+	"github.com/getlode/lode/internal/cache"
+	"github.com/getlode/lode/internal/checkout"
+	"github.com/getlode/lode/internal/dvcfile"
+	"github.com/getlode/lode/internal/hashfile"
+	"github.com/getlode/lode/internal/remote"
+	"github.com/getlode/lode/internal/repo"
+	"github.com/getlode/lode/internal/transfer"
 )
 
 func newStore(t *testing.T, bucket string) *remote.S3 {

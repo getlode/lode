@@ -3,11 +3,11 @@ package cli
 import (
 	"context"
 
-	"github.com/jtorchia/lode/internal/cache"
-	"github.com/jtorchia/lode/internal/checkout"
-	"github.com/jtorchia/lode/internal/lock"
-	"github.com/jtorchia/lode/internal/repo"
-	"github.com/jtorchia/lode/internal/transfer"
+	"github.com/getlode/lode/internal/cache"
+	"github.com/getlode/lode/internal/checkout"
+	"github.com/getlode/lode/internal/lock"
+	"github.com/getlode/lode/internal/repo"
+	"github.com/getlode/lode/internal/transfer"
 	"github.com/spf13/cobra"
 )
 

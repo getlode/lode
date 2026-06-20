@@ -9,7 +9,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/jtorchia/lode/internal/repo"
+	"github.com/getlode/lode/internal/repo"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
