@@ -15,9 +15,30 @@ allow reasonable time for a fix before public disclosure.
 lode is pre-1.0. Security fixes are applied to the latest released version.
 Until 1.0, only the most recent tag is supported.
 
-## Scope notes
+## Network egress (no telemetry)
 
-- lode handles your data and credentials only locally and against the remote you
-  configure; it does not phone home.
-- Remote credentials are read from the environment / your DVC config / the AWS
-  credential chain — lode does not store them.
+lode has **no telemetry and no analytics**. The only network connections it makes are
+to the **S3-compatible remote you configure** (its `endpointurl`, default AWS S3). There
+are no other endpoints — you can verify with `grep -rn "net/http" internal/ cmd/` (no
+HTTP client beyond the S3 SDK).
+
+## Credentials
+
+- Credentials are read from explicit config, the environment, and the shared AWS
+  credentials file — lode does not invent its own credential store.
+- **Set secrets without exposing them**: omit the value and pipe it in, so it never
+  lands in argv / `ps` / shell history:
+  `printf '%s' "$KEY" | lode remote modify <name> secret_access_key`
+  lode never echoes secret values back.
+- Note: like DVC, `.dvc/config` stores credentials in **plain text**. Prefer the
+  environment / AWS credentials file over writing keys into the repo config.
+
+## Verifying release artifacts
+
+Release binaries are built by the tagged GitHub Actions pipeline, with:
+
+- **`checksums.txt`** for each release;
+- a **cosign keyless signature** of the checksums (`checksums.txt.sig` + `.pem`),
+  verifiable with `cosign verify-blob`;
+- an **SBOM** per archive (syft);
+- a **GitHub build-provenance attestation** (`gh attestation verify <file> --repo getlode/lode`).

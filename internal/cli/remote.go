@@ -1,11 +1,37 @@
 package cli
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/getlode/lode/internal/repo"
 	"github.com/spf13/cobra"
 )
+
+// isSecretOption reports whether a remote option holds a credential whose value
+// must never be echoed.
+func isSecretOption(option string) bool {
+	switch option {
+	case "secret_access_key", "session_token", "access_key_id":
+		return true
+	}
+	return false
+}
+
+// optionValue returns the explicit value (args[2]) or, when omitted, reads it
+// from stdin so secrets never land in argv / ps / shell history.
+func optionValue(args []string) (string, error) {
+	if len(args) == 3 {
+		return args[2], nil
+	}
+	data, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	if err != nil && data == "" {
+		return "", fmt.Errorf("no value given for %q and none on stdin", args[1])
+	}
+	return strings.TrimRight(data, "\r\n"), nil
+}
 
 func newRemoteCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -40,11 +66,19 @@ func newRemoteAddCmd() *cobra.Command {
 
 func newRemoteModifyCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "modify <name> <option> <value>",
+		Use:   "modify <name> <option> [value]",
 		Short: "Modify a remote option (endpointurl, region, access_key_id, ...)",
-		Args:  cobra.ExactArgs(3),
+		Long: "Modify a remote option. Omit [value] to read it from stdin — recommended\n" +
+			"for secrets so they never appear in argv (ps), shell history, or logs.\n" +
+			"Example: printf '%s' \"$SECRET\" | lode remote modify r secret_access_key",
+		Args: cobra.RangeArgs(2, 3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			r, err := requireRepo()
+			if err != nil {
+				return err
+			}
+			name, option := args[0], args[1]
+			value, err := optionValue(args)
 			if err != nil {
 				return err
 			}
@@ -52,15 +86,19 @@ func newRemoteModifyCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			rm := cfg.Remotes[args[0]]
-			rm.Name = args[0]
-			if err := setRemoteOption(&rm, args[1], args[2]); err != nil {
+			rm := cfg.Remotes[name]
+			rm.Name = name
+			if err := setRemoteOption(&rm, option, value); err != nil {
 				return err
 			}
 			if err := repo.SetRemote(r.ConfigPath(), rm, false); err != nil {
 				return err
 			}
-			infof("remote %q: %s = %s", args[0], args[1], args[2])
+			if isSecretOption(option) {
+				infof("remote %q: %s set", name, option)
+			} else {
+				infof("remote %q: %s = %s", name, option, value)
+			}
 			return nil
 		},
 	}

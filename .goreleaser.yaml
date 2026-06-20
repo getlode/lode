@@ -20,6 +20,23 @@ archives:
 checksum:
   name_template: "checksums.txt"
 
+# Software Bill of Materials per archive (syft must be on PATH in CI).
+sboms:
+  - artifacts: archive
+
+# Keyless signing of the checksums file with cosign (OIDC; needs id-token: write).
+signs:
+  - cmd: cosign
+    certificate: "${artifact}.pem"
+    args:
+      - "sign-blob"
+      - "--output-certificate=${certificate}"
+      - "--output-signature=${signature}"
+      - "${artifact}"
+      - "--yes"
+    artifacts: checksum
+    output: true
+
 brews:
   - repository:
       owner: getlode
