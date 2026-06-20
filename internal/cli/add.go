@@ -28,7 +28,7 @@ func newAddCmd() *cobra.Command {
 }
 
 func runAdd(targets []string) error {
-	r, err := findRepo()
+	r, err := requireRepo()
 	if err != nil {
 		return err
 	}

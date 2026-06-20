@@ -45,10 +45,13 @@ func NewS3(r repo.Remote) (*S3, error) {
 	if r.AccessKeyID != "" {
 		creds = credentials.NewStaticV4(r.AccessKeyID, r.SecretAccessKey, r.SessionToken)
 	} else {
+		// Env + shared-credentials file. IAM (EC2/ECS instance role) is omitted
+		// on purpose: minio's IAM provider panics on a nil HTTP client when no
+		// other creds are present, and probing the metadata endpoint would hang
+		// off-EC2. It can be added later with an explicit, timeout-bounded client.
 		creds = credentials.NewChainCredentials([]credentials.Provider{
 			&credentials.EnvAWS{},
 			&credentials.FileAWSCredentials{},
-			&credentials.IAM{},
 		})
 	}
 
@@ -143,4 +146,18 @@ func parseS3URL(raw string) (bucket, prefix string, err error) {
 		prefix = strings.Trim(parts[1], "/")
 	}
 	return bucket, prefix, nil
+}
+
+// Reachable verifies connectivity and authentication by listing one object
+// under the prefix. A non-nil error means the remote is unreachable or the
+// credentials are invalid (used by `lode doctor`).
+func (s *S3) Reachable(ctx context.Context) error {
+	for obj := range s.client.ListObjects(ctx, s.bucket, minio.ListObjectsOptions{
+		Prefix:  s.prefix,
+		MaxKeys: 1,
+	}) {
+		// First result: nil Err means the listing (auth + connectivity) succeeded.
+		return obj.Err
+	}
+	return ctx.Err() // empty listing, but reachable
 }

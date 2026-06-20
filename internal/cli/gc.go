@@ -36,7 +36,7 @@ func newGCCmd() *cobra.Command {
 }
 
 func runGC(ctx context.Context, force, cloud bool, remoteName string) error {
-	r, err := findRepo()
+	r, err := requireRepo()
 	if err != nil {
 		return err
 	}

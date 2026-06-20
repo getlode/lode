@@ -25,7 +25,7 @@ func newPushCmd() *cobra.Command {
 }
 
 func runPush(ctx context.Context, targets []string, remoteName string) error {
-	r, err := findRepo()
+	r, err := requireRepo()
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func newFetchCmd() *cobra.Command {
 }
 
 func runFetch(ctx context.Context, targets []string, remoteName string) (*cache.Cache, error) {
-	r, err := findRepo()
+	r, err := requireRepo()
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func newPullCmd() *cobra.Command {
 }
 
 func runPull(ctx context.Context, targets []string, remoteName string) error {
-	r, err := findRepo()
+	r, err := requireRepo()
 	if err != nil {
 		return err
 	}

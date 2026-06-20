@@ -30,7 +30,7 @@ type statusEntry struct {
 }
 
 func runStatus(targets []string, jsonOut bool) error {
-	r, err := findRepo()
+	r, err := requireRepo()
 	if err != nil {
 		return err
 	}

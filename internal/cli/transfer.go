@@ -25,7 +25,7 @@ func openStore(r *repo.Repo, remoteName string) (transfer.Store, error) {
 		name = cfg.CoreRemote
 	}
 	if name == "" {
-		return nil, fmt.Errorf("no hay remote configurado; usá -r <nombre> o configurá uno por defecto")
+		return nil, errNoRemote
 	}
 	rm, ok := cfg.Remotes[name]
 	if !ok {

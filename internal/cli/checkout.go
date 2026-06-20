@@ -25,7 +25,7 @@ func newCheckoutCmd() *cobra.Command {
 }
 
 func runCheckout(targets []string) error {
-	r, err := findRepo()
+	r, err := requireRepo()
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func runCheckout(targets []string) error {
 	}
 
 	if len(missing) > 0 {
-		infof("%d objetos no están en cache; ejecutá `lode pull` para traerlos", len(missing))
+		infof("%s", missingObjectsHint(len(missing)))
 	}
 	infof("%d salidas materializadas", n)
 	return nil

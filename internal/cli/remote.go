@@ -23,7 +23,7 @@ func newRemoteAddCmd() *cobra.Command {
 		Short: "Agrega un remote (url s3://bucket/prefix)",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			r, err := findRepo()
+			r, err := requireRepo()
 			if err != nil {
 				return err
 			}
@@ -44,7 +44,7 @@ func newRemoteModifyCmd() *cobra.Command {
 		Short: "Modifica una opción de un remote (endpointurl, region, access_key_id, ...)",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			r, err := findRepo()
+			r, err := requireRepo()
 			if err != nil {
 				return err
 			}

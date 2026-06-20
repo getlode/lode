@@ -41,20 +41,69 @@ func (r *Repo) StatePath() string  { return filepath.Join(r.TmpDir(), "lode", "s
 func (r *Repo) LockPath() string   { return filepath.Join(r.TmpDir(), "lock") }
 func (r *Repo) ConfigPath() string { return filepath.Join(r.DvcDir, "config") }
 
-// Init creates the minimal .dvc layout (used by tests and to operate on a fresh
-// directory). It mirrors what `dvc init --no-scm` produces for the parts we use.
-func Init(root string) (*Repo, error) {
+// InitMode selects the initialization flavor.
+type InitMode int
+
+const (
+	ModeSCM   InitMode = iota // git-tracked repo (empty config + .dvc/.gitignore)
+	ModeNoSCM                 // standalone repo (config has no_scm = True)
+)
+
+// InitOutcome reports what InitRepo did.
+type InitOutcome int
+
+const (
+	Created            InitOutcome = iota // structure created
+	AlreadyInitialized                    // .dvc/ already exists in root
+	InsideExistingRepo                    // an ancestor already has a .dvc/
+)
+
+// InitRepo creates a .dvc repository structure byte-compatible with what
+// `dvc init` (ModeSCM) or `dvc init --no-scm` (ModeNoSCM) produces. It does not
+// create the cache directory (DVC creates it lazily on the first add). It is
+// safe: if the directory already has a repo, or sits inside one, it reports the
+// outcome without modifying anything.
+func InitRepo(root string, mode InitMode) (*Repo, InitOutcome, error) {
+	root, err := filepath.Abs(root)
+	if err != nil {
+		return nil, Created, err
+	}
 	dvc := filepath.Join(root, ".dvc")
-	for _, d := range []string{dvc, filepath.Join(dvc, "cache"), filepath.Join(dvc, "tmp")} {
-		if err := os.MkdirAll(d, 0o755); err != nil {
-			return nil, err
+
+	if fi, err := os.Stat(dvc); err == nil && fi.IsDir() {
+		return &Repo{Root: root, DvcDir: dvc}, AlreadyInitialized, nil
+	}
+	if existing, err := Find(root); err == nil && existing.Root != root {
+		return existing, InsideExistingRepo, nil
+	}
+
+	if err := os.MkdirAll(filepath.Join(dvc, "tmp"), 0o755); err != nil {
+		return nil, Created, err
+	}
+
+	config := configNoSCM
+	if mode == ModeSCM {
+		config = configSCM
+	}
+	writes := map[string]string{
+		filepath.Join(dvc, "config"):       config,
+		filepath.Join(root, ".dvcignore"):  dvcignoreTemplate,
+		filepath.Join(dvc, "tmp", "btime"): "",
+	}
+	if mode == ModeSCM {
+		writes[filepath.Join(dvc, ".gitignore")] = dvcGitignore
+	}
+	for path, content := range writes {
+		if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+			return nil, Created, err
 		}
 	}
-	cfg := filepath.Join(dvc, "config")
-	if _, err := os.Stat(cfg); os.IsNotExist(err) {
-		if err := os.WriteFile(cfg, nil, 0o644); err != nil {
-			return nil, err
-		}
-	}
-	return &Repo{Root: root, DvcDir: dvc}, nil
+	return &Repo{Root: root, DvcDir: dvc}, Created, nil
+}
+
+// Init creates a standalone (no-scm) repository. Convenience wrapper kept for
+// callers/tests that just need a working repo.
+func Init(root string) (*Repo, error) {
+	r, _, err := InitRepo(root, ModeNoSCM)
+	return r, err
 }

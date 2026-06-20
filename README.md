@@ -40,6 +40,7 @@ Single static binary, no runtime, no dependencies. Linux / macOS / Windows, amd6
 ## Usage
 
 ```bash
+lode init --no-scm             # start a repo with no Python and no DVC (use plain `lode init` in a git repo)
 lode add data/                 # track a directory (or a file)
 lode status                    # what changed — without re-hashing unchanged data
 lode remote add -d r s3://bucket/store
@@ -48,15 +49,20 @@ lode push                      # upload to an S3-compatible remote
 lode pull                      # fetch + checkout on a clean clone
 lode checkout                  # materialize the workspace from cache
 lode gc -f                     # reclaim unreferenced objects
+lode doctor                    # diagnose repo, cache, remotes and DVC coexistence
 ```
+
+Already have a DVC repo? Skip `init` and point `lode` at it — same format, both tools interoperate.
 
 | Command | What it does |
 |---|---|
+| `init` | Create a repo byte-compatible with `dvc init` — standalone, no Python required |
 | `add` | Hash (in parallel), cache, write the `.dvc`, update `.gitignore` |
 | `status` | Report changes using the state DB (no re-hash of unchanged data); `--json` |
 | `push` / `fetch` / `pull` | Sync with an S3-compatible remote (AWS S3, MinIO, Cloudflare R2, Backblaze B2) |
 | `checkout` | Materialize the workspace (reflink → hardlink/symlink → copy) |
 | `gc` | Remove unreferenced objects from the cache (and remote with `-c`) |
+| `doctor` | Diagnose repo, cache, remotes, format and DVC coexistence; `--json`, CI-friendly exit codes |
 
 ## DVC compatibility
 

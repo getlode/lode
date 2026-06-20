@@ -6,7 +6,6 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/getlode/lode/internal/repo"
 	"github.com/spf13/cobra"
 )
 
@@ -38,6 +37,7 @@ func newRootCmd() *cobra.Command {
 	pf.StringVar(&flagChdir, "cd", "", "ejecutar como si el cwd fuera este directorio")
 
 	root.AddCommand(
+		newInitCmd(),
 		newAddCmd(),
 		newStatusCmd(),
 		newPushCmd(),
@@ -45,6 +45,7 @@ func newRootCmd() *cobra.Command {
 		newPullCmd(),
 		newCheckoutCmd(),
 		newGCCmd(),
+		newDoctorCmd(),
 		newRemoteCmd(),
 	)
 	return root
@@ -56,13 +57,4 @@ func Execute() {
 		fmt.Fprintln(os.Stderr, "Error:", err)
 		os.Exit(1)
 	}
-}
-
-// findRepo locates the repository from the current working directory.
-func findRepo() (*repo.Repo, error) {
-	cwd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-	return repo.Find(cwd)
 }
