@@ -36,6 +36,12 @@ var errNoRemote = fmt.Errorf("no remote configured\n" +
 // errVerifyFailed is returned when verify finds missing or corrupted objects.
 var errVerifyFailed = fmt.Errorf("verification failed: some objects are missing or corrupted")
 
+// errPartialTransfer is returned when some objects could not be transferred even
+// after retries. A re-run resumes — already-completed objects are skipped.
+func errPartialTransfer(n int) error {
+	return fmt.Errorf("%s failed to transfer after retries; re-run to resume (completed objects are skipped)", plural(n, "object", "objects"))
+}
+
 // errAddNoTarget is shown when `add` is run without a file or directory.
 var errAddNoTarget = fmt.Errorf("specify at least one file or directory to track, e.g. `lode add data/`")
 

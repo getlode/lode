@@ -86,7 +86,10 @@ func uploadSet(ctx context.Context, store Store, c *cache.Cache, oids []string, 
 	for _, o := range oids {
 		o := o
 		g.Go(func() error {
-			if err := store.Put(ctx, o, c.ObjectPath(o)); err != nil {
+			err := retry(ctx, DefaultRetry, func() error {
+				return store.Put(ctx, o, c.ObjectPath(o))
+			})
+			if err != nil {
 				mu.Lock()
 				failed[o] = struct{}{}
 				mu.Unlock()

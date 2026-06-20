@@ -63,7 +63,10 @@ func Fetch(ctx context.Context, store Store, c *cache.Cache, items []FetchItem, 
 				return nil
 			}
 			if err := downloadVerify(gctx, store, c, o, jobs); err != nil {
-				return err
+				mu.Lock()
+				res.Failed++
+				mu.Unlock()
+				return nil
 			}
 			mu.Lock()
 			res.Transferred++
@@ -92,7 +95,9 @@ func downloadVerify(ctx context.Context, store Store, c *cache.Cache, oid string
 	tmp.Close()
 	defer os.Remove(tmpName)
 
-	if err := store.Get(ctx, oid, tmpName); err != nil {
+	if err := retry(ctx, DefaultRetry, func() error {
+		return store.Get(ctx, oid, tmpName)
+	}); err != nil {
 		return err
 	}
 
