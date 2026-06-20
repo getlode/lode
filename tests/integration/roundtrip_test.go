@@ -32,7 +32,7 @@ func newStore(t *testing.T, bucket string) *remote.S3 {
 	t.Helper()
 	endpoint := os.Getenv("MINIO_ENDPOINT")
 	if endpoint == "" || testing.Short() {
-		t.Skip("MINIO_ENDPOINT no seteado (o -short); se omite la integración S3")
+		t.Skip("MINIO_ENDPOINT not set (or -short); skipping the S3 integration")
 	}
 	s, err := remote.NewS3(repo.Remote{
 		Name:            bucket,
@@ -122,7 +122,7 @@ func TestRoundTrip(t *testing.T) {
 		t.Fatal(err)
 	}
 	if res.Failed != 0 {
-		t.Fatalf("push con fallos: %+v", res)
+		t.Fatalf("push had failures: %+v", res)
 	}
 
 	// Simulate a clean clone: wipe cache and workspace data, keep nothing local.

@@ -25,7 +25,7 @@ func TestSerializeDir_KnownVector(t *testing.T) {
 
 func TestSerializeDir_UnicodeEscape(t *testing.T) {
 	// Python json.dumps(ensure_ascii=True) escapes non-ASCII as \uXXXX.
-	relpath := "café.txt" // café.txt
+	relpath := "café.txt" // accented filename: exercises UTF-8 / \\uXXXX escaping
 	entries := []DirEntry{{MD5: "00000000000000000000000000000000", RelPath: relpath}}
 	want := fmt.Sprintf(`[{"md5": "00000000000000000000000000000000", "relpath": "caf\u%04x.txt"}]`, 'é')
 	got := string(SerializeDir(entries))

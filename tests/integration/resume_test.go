@@ -29,7 +29,7 @@ func TestResumeIdempotent(t *testing.T) {
 		t.Fatal(err)
 	}
 	if first.Transferred == 0 || first.Failed != 0 {
-		t.Fatalf("primer push inesperado: %+v", first)
+		t.Fatalf("unexpected first push: %+v", first)
 	}
 
 	// Re-run: everything is already present.
@@ -38,10 +38,10 @@ func TestResumeIdempotent(t *testing.T) {
 		t.Fatal(err)
 	}
 	if second.Transferred != 0 || second.Failed != 0 {
-		t.Fatalf("el re-push debería transferir 0 y no fallar: %+v", second)
+		t.Fatalf("re-push should transfer 0 and not fail: %+v", second)
 	}
 	if second.Skipped != first.Transferred {
-		t.Fatalf("el re-push debería saltear lo ya subido: skipped=%d esperado=%d", second.Skipped, first.Transferred)
+		t.Fatalf("re-push should skip already-uploaded objects: skipped=%d want=%d", second.Skipped, first.Transferred)
 	}
 }
 
@@ -69,9 +69,9 @@ func TestResumeRecoversMissing(t *testing.T) {
 		t.Fatal(err)
 	}
 	if full.Failed != 0 {
-		t.Fatalf("push con fallos: %+v", full)
+		t.Fatalf("push had failures: %+v", full)
 	}
 	if full.Transferred == 0 {
-		t.Fatalf("se esperaba transferir los objetos faltantes: %+v", full)
+		t.Fatalf("expected to transfer the missing objects: %+v", full)
 	}
 }

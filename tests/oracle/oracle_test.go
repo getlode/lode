@@ -30,7 +30,7 @@ func dvcBin(t *testing.T) string {
 	if b, err := exec.LookPath("dvc"); err == nil {
 		return b
 	}
-	t.Skip("dvc no disponible; set DVC_BIN para correr el oráculo")
+	t.Skip("dvc not available; set DVC_BIN to run the oracle")
 	return ""
 }
 
@@ -71,7 +71,7 @@ func findDir(t *testing.T, cacheRoot string) []byte {
 		t.Fatal(err)
 	}
 	if data == nil {
-		t.Fatal("no se encontró objeto .dir en el cache de DVC")
+		t.Fatal("no .dir object found in DVC's cache")
 	}
 	return data
 }
@@ -100,7 +100,7 @@ func TestOracle_SingleFile(t *testing.T) {
 	}})
 
 	if !bytes.Equal(got, want) {
-		t.Fatalf("mismatch .dvc archivo:\n--- lode ---\n%s\n--- dvc ---\n%s", got, want)
+		t.Fatalf("mismatch in .dvc file:\n--- lode ---\n%s\n--- dvc ---\n%s", got, want)
 	}
 }
 
@@ -139,7 +139,7 @@ func TestOracle_Directory(t *testing.T) {
 	}
 	gotDir := hashfile.SerializeDir(tree.Entries)
 	if !bytes.Equal(gotDir, wantDir) {
-		t.Fatalf("mismatch objeto .dir:\n--- lode ---\n%s\n--- dvc ---\n%s", gotDir, wantDir)
+		t.Fatalf("mismatch in .dir object:\n--- lode ---\n%s\n--- dvc ---\n%s", gotDir, wantDir)
 	}
 
 	nfiles := int64(tree.NFiles)
@@ -167,6 +167,6 @@ func TestOracle_CachePaths(t *testing.T) {
 	}
 	want := filepath.Join(dir, ".dvc", "cache", "files", "md5", sum[:2], sum[2:])
 	if _, err := os.Stat(want); err != nil {
-		t.Fatalf("DVC no dejó el objeto en %s (hash lode=%s): %v", want, sum, err)
+		t.Fatalf("DVC did not write the object at %s (lode hash=%s): %v", want, sum, err)
 	}
 }

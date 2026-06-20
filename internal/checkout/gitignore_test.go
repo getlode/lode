@@ -30,7 +30,7 @@ func TestAddToGitignore_FormatAndIdempotency(t *testing.T) {
 		t.Fatal(err)
 	}
 	if string(got) != "/foo.csv\n" {
-		t.Fatalf("gitignore inesperado: %q", got)
+		t.Fatalf("unexpected gitignore: %q", got)
 	}
 
 	// Idempotent: second call must not duplicate.
@@ -58,6 +58,6 @@ func TestAddToGitignore_PreservesExisting(t *testing.T) {
 	}
 	got, _ := os.ReadFile(gi)
 	if string(got) != "/other\n/data\n" {
-		t.Fatalf("no preservó entradas previas: %q", got)
+		t.Fatalf("did not preserve previous entries: %q", got)
 	}
 }

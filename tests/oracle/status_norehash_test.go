@@ -40,7 +40,7 @@ func TestNoRehash(t *testing.T) {
 		t.Fatal(err)
 	}
 	if got != sentinel {
-		t.Fatalf("se rehasheó un archivo sin cambios: got %s", got)
+		t.Fatalf("re-hashed an unchanged file: got %s", got)
 	}
 
 	// Change content (and size) -> state invalidated -> real hash.
@@ -52,7 +52,7 @@ func TestNoRehash(t *testing.T) {
 		t.Fatal(err)
 	}
 	if got2 == sentinel {
-		t.Fatal("no se invalidó el state tras cambiar el contenido")
+		t.Fatal("state was not invalidated after the content changed")
 	}
 	want, _, _ := hashfile.HashFile(path)
 	if got2 != want {

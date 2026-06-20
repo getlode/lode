@@ -25,11 +25,11 @@ import (
 func TestInterop_DVCPushDvcgoPull(t *testing.T) {
 	dvc := os.Getenv("DVC_BIN")
 	if dvc == "" {
-		t.Skip("DVC_BIN no seteado; se omite la interop con DVC real")
+		t.Skip("DVC_BIN not set; skipping interop with real DVC")
 	}
 	endpoint := os.Getenv("MINIO_ENDPOINT")
 	if endpoint == "" || testing.Short() {
-		t.Skip("MINIO_ENDPOINT no seteado (o -short)")
+		t.Skip("MINIO_ENDPOINT not set (or -short)")
 	}
 	bucket := "io-" + randSuffix(t)
 	store := newStore(t, bucket) // creates the bucket

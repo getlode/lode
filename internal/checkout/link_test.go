@@ -70,7 +70,7 @@ func TestMaterialize_CopyFallback(t *testing.T) {
 		t.Fatal(err)
 	}
 	if string(got) != "payload-data" {
-		t.Fatalf("contenido inesperado: %q", got)
+		t.Fatalf("unexpected content: %q", got)
 	}
 
 	// Idempotent: a second materialize over an up-to-date file is a no-op.
@@ -85,7 +85,7 @@ func TestMaterialize_MissingObject(t *testing.T) {
 	out := dvcfile.Out{MD5: "ffffffffffffffffffffffffffffffff", Hash: "md5", Path: "x"}
 	err := Materialize(c, out, filepath.Join(root, "x"), []LinkType{Copy})
 	if !os.IsNotExist(err) {
-		t.Fatalf("se esperaba ErrNotExist, got %v", err)
+		t.Fatalf("expected ErrNotExist, got %v", err)
 	}
 }
 
@@ -102,7 +102,7 @@ func TestMaterialize_HardlinkSharesInode(t *testing.T) {
 	si, _ := os.Stat(c.ObjectPath(oid))
 	di, _ := os.Stat(dst)
 	if !os.SameFile(si, di) {
-		t.Fatal("hardlink no comparte inodo con el objeto de cache")
+		t.Fatal("hardlink does not share an inode with the cache object")
 	}
 	// relink detection should skip on a second pass.
 	if err := Materialize(c, out, dst, []LinkType{Hardlink}); err != nil {

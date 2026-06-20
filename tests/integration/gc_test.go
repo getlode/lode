@@ -21,7 +21,7 @@ import (
 func TestGC_SafetyAndRestorability(t *testing.T) {
 	bin := os.Getenv("LODE_BIN")
 	if bin == "" {
-		t.Skip("LODE_BIN no seteado; se omite el test de gc por binario")
+		t.Skip("LODE_BIN not set; skipping the gc binary test")
 	}
 
 	root := t.TempDir()
@@ -41,13 +41,13 @@ func TestGC_SafetyAndRestorability(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !c.Has(junk) {
-		t.Fatal("no se pudo inyectar el objeto junk")
+		t.Fatal("could not inject the junk object")
 	}
 
 	runBin(t, root, bin, "gc", "-f")
 
 	if c.Has(junk) {
-		t.Fatal("gc no eliminó el objeto no referenciado")
+		t.Fatal("gc did not remove the unreferenced object")
 	}
 
 	// Tracked data must remain restorable: wipe workspace, checkout, verify.
