@@ -86,3 +86,22 @@ func TestIsTransient(t *testing.T) {
 		}
 	}
 }
+
+type tempErr struct{}
+
+func (tempErr) Error() string   { return "throttled (503)" }
+func (tempErr) Temporary() bool { return true }
+
+func TestRetry_TemporaryInterface(t *testing.T) {
+	calls := 0
+	err := retry(context.Background(), fastPolicy(3), func() error {
+		calls++
+		if calls < 2 {
+			return tempErr{}
+		}
+		return nil
+	})
+	if err != nil || calls != 2 {
+		t.Fatalf("Temporary() error should be retried: err=%v calls=%d", err, calls)
+	}
+}

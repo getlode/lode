@@ -113,11 +113,37 @@ func (s *S3) ListOIDs(ctx context.Context) (map[string]struct{}, error) {
 
 func (s *S3) Put(ctx context.Context, oid, localPath string) error {
 	_, err := s.client.FPutObject(ctx, s.bucket, s.key(oid), localPath, minio.PutObjectOptions{})
-	return err
+	return classifyS3(err)
 }
 
 func (s *S3) Get(ctx context.Context, oid, localPath string) error {
-	return s.client.FGetObject(ctx, s.bucket, s.key(oid), localPath, minio.GetObjectOptions{})
+	return classifyS3(s.client.FGetObject(ctx, s.bucket, s.key(oid), localPath, minio.GetObjectOptions{}))
+}
+
+// retryableS3 wraps an S3 error the transfer layer should retry, exposing
+// Temporary() so retries are classified by HTTP status/code, not error strings.
+type retryableS3 struct{ error }
+
+func (retryableS3) Temporary() bool { return true }
+
+// classifyS3 marks throttling and 5xx responses as temporary (retryable);
+// everything else (auth, NoSuchKey, bad request) is returned unchanged. Raw
+// network errors (StatusCode 0) pass through to the transfer layer's fallback.
+func classifyS3(err error) error {
+	if err == nil {
+		return nil
+	}
+	resp := minio.ToErrorResponse(err)
+	switch resp.StatusCode {
+	case 429, 500, 502, 503, 504:
+		return retryableS3{err}
+	}
+	switch resp.Code {
+	case "SlowDown", "RequestTimeout", "InternalError", "ServiceUnavailable",
+		"Throttling", "ThrottlingException", "RequestThrottled", "RequestThrottledException":
+		return retryableS3{err}
+	}
+	return err
 }
 
 func (s *S3) Delete(ctx context.Context, oid string) error {
