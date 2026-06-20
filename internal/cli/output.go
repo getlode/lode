@@ -22,13 +22,6 @@ func infof(format string, args ...any) {
 	fmt.Fprintf(os.Stdout, format+"\n", args...)
 }
 
-// verbosef prints only when --verbose is set.
-func verbosef(format string, args ...any) {
-	if flagVerbose {
-		fmt.Fprintf(os.Stderr, format+"\n", args...)
-	}
-}
-
 // printJSON writes v as indented JSON to stdout.
 func printJSON(v any) error {
 	enc := json.NewEncoder(os.Stdout)

@@ -9,7 +9,9 @@ linters:
     - staticcheck
     - ineffassign
     - unused
-    - misspell
+  # Note: `misspell` is intentionally disabled — user-facing strings and comments
+  # are currently in Spanish, which an English-only spell checker flags as typos.
+  # Revisit if/when the CLI output is migrated to English.
 
 issues:
   exclude-rules:

@@ -33,7 +33,7 @@ func runPush(ctx context.Context, targets []string, remoteName string) error {
 	if err != nil {
 		return err
 	}
-	defer gl.Release()
+	defer func() { _ = gl.Release() }()
 
 	store, err := openStore(r, remoteName)
 	if err != nil {

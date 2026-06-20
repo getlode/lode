@@ -66,13 +66,7 @@ func Parse(data []byte) (*File, error) {
 	}
 	f := &File{Outs: make([]Out, 0, len(yf.Outs))}
 	for _, o := range yf.Outs {
-		f.Outs = append(f.Outs, Out{
-			MD5:    o.MD5,
-			Size:   o.Size,
-			NFiles: o.NFiles,
-			Hash:   o.Hash,
-			Path:   o.Path,
-		})
+		f.Outs = append(f.Outs, Out(o))
 	}
 	return f, nil
 }

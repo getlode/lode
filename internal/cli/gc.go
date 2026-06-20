@@ -44,7 +44,7 @@ func runGC(ctx context.Context, force, cloud bool, remoteName string) error {
 	if err != nil {
 		return err
 	}
-	defer gl.Release()
+	defer func() { _ = gl.Release() }()
 
 	c := cache.New(r.CacheDir())
 	reachable, err := reachableOIDs(r, c)
