@@ -20,6 +20,13 @@ archives:
 checksum:
   name_template: "checksums.txt"
 
-# Homebrew publishing is deferred to a later release: it needs a PAT with
-# write access to getlode/homebrew-tap (the default GITHUB_TOKEN cannot push
-# cross-repo). Re-add a `brews:` block once HOMEBREW_TAP_TOKEN is configured.
+brews:
+  - repository:
+      owner: getlode
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    homepage: "https://github.com/getlode/lode"
+    description: "Fast, drop-in compatible reimplementation of DVC's data-versioning core, in Go"
+    license: "AGPL-3.0"
+    test: |
+      system "#{bin}/lode", "--version"
