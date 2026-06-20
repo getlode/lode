@@ -8,6 +8,7 @@ require (
 	github.com/spf13/cobra v1.8.1
 	go.etcd.io/bbolt v1.3.11
 	golang.org/x/sync v0.10.0
+	golang.org/x/sys v0.28.0
 	gopkg.in/ini.v1 v1.67.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -24,6 +25,5 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/net v0.23.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 )
