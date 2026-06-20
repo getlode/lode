@@ -1,6 +1,6 @@
 module github.com/getlode/lode
 
-go 1.23.4
+go 1.25.0
 
 require (
 	github.com/gofrs/flock v0.12.1
@@ -8,7 +8,7 @@ require (
 	github.com/spf13/cobra v1.8.1
 	go.etcd.io/bbolt v1.3.11
 	golang.org/x/sync v0.10.0
-	golang.org/x/sys v0.28.0
+	golang.org/x/sys v0.46.0
 	gopkg.in/ini.v1 v1.67.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -20,7 +20,9 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/klauspost/compress v1.17.6 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.6 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
+	github.com/rogpeppe/go-internal v1.15.0 // indirect
 	github.com/rs/xid v1.5.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
