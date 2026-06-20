@@ -16,6 +16,12 @@ var stateBucket = []byte("hashes")
 // interoperate with DVC-Python's diskcache) and lives under .dvc/tmp/lode/.
 type State struct {
 	db *bolt.DB
+	// ForceRehash, when set, makes Get always report a miss so every file is
+	// re-hashed (Put still refreshes the cache afterward). Use on filesystems
+	// where (inode, mtime, size) is unreliable: NFS, restored backups that reset
+	// mtimes, or recycled inodes. The metadata heuristic is only an optimization;
+	// this is the always-correct path that never reports a false "up to date".
+	ForceRehash bool
 }
 
 // OpenState opens (creating if needed) the state DB at path.
@@ -42,6 +48,9 @@ func (s *State) Close() error { return s.db.Close() }
 // Get returns the cached hash for path if its (inode, mtime, size) match the
 // stored entry.
 func (s *State) Get(path string) (md5sum string, size int64, ok bool) {
+	if s.ForceRehash {
+		return "", 0, false
+	}
 	fi, err := os.Stat(path)
 	if err != nil {
 		return "", 0, false

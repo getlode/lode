@@ -34,11 +34,10 @@ func runStatus(targets []string, jsonOut bool) error {
 	if err != nil {
 		return err
 	}
-	st, err := hashfile.OpenState(r.StatePath())
-	if err != nil {
-		return err
+	st := openState(r)
+	if st != nil {
+		defer st.Close()
 	}
-	defer st.Close()
 
 	c := cache.New(r.CacheDir())
 	dvcFiles, err := dvcFilesFor(r, targets)

@@ -35,6 +35,7 @@ func newRootCmd() *cobra.Command {
 	pf.BoolVarP(&flagQuiet, "quiet", "q", false, "errors only")
 	pf.IntVarP(&flagJobs, "jobs", "j", runtime.NumCPU(), "concurrency")
 	pf.StringVar(&flagChdir, "cd", "", "run as if the current directory were this path")
+	pf.BoolVar(&flagRehash, "rehash", false, "ignore the state cache and re-hash every file (use on NFS / restored backups where mtime is unreliable)")
 
 	root.AddCommand(
 		newInitCmd(),

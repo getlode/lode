@@ -43,11 +43,10 @@ func runAdd(targets []string) error {
 	}
 	defer func() { _ = gl.Release() }()
 
-	st, err := hashfile.OpenState(r.StatePath())
-	if err != nil {
-		return err
+	st := openState(r)
+	if st != nil {
+		defer st.Close()
 	}
-	defer st.Close()
 
 	c := cache.New(r.CacheDir())
 	for _, t := range targets {

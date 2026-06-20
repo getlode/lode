@@ -23,6 +23,15 @@ lode is a CLI (`cmd/lode`) over a library of single-purpose packages under
 `.dir`, cache/remote layout) must keep the oracle test (`tests/oracle/`, which runs the
 real `dvc` and compares bytes) green. See [`.specify/memory/constitution.md`](../.specify/memory/constitution.md).
 
+## Correctness of the state cache
+
+The state DB `(inode, mtime, size) -> md5` is an **optimization, never a source of
+truth**. It can produce a false "up to date" only if a file's content changes while
+all three keys stay identical (e.g. NFS quirks, restored backups that reset mtimes,
+recycled inodes). For those cases `--rehash` (and a corrupt/unreadable state DB)
+degrade to a full re-hash — the always-correct path. lode must never report "no
+change" for a file that changed.
+
 ## Where things live
 
 - Commands: `internal/cli/<command>.go`
