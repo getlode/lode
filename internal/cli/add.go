@@ -36,7 +36,7 @@ func runAdd(targets []string) error {
 	if err != nil {
 		return err
 	}
-	defer gl.Release()
+	defer func() { _ = gl.Release() }()
 
 	st, err := hashfile.OpenState(r.StatePath())
 	if err != nil {

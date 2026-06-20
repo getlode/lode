@@ -42,7 +42,7 @@ func AcquireRW(tmpDir, cmd string, read, write []string) (*RW, error) {
 	if err := guard.Lock(); err != nil {
 		return nil, err
 	}
-	defer guard.Unlock()
+	defer func() { _ = guard.Unlock() }()
 
 	st, err := readRW(jsonPath)
 	if err != nil {
@@ -83,7 +83,7 @@ func (r *RW) Release() error {
 	if err := guard.Lock(); err != nil {
 		return err
 	}
-	defer guard.Unlock()
+	defer func() { _ = guard.Unlock() }()
 
 	st, err := readRW(r.jsonPath)
 	if err != nil {

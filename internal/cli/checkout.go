@@ -33,7 +33,7 @@ func runCheckout(targets []string) error {
 	if err != nil {
 		return err
 	}
-	defer gl.Release()
+	defer func() { _ = gl.Release() }()
 
 	cfg, err := repo.LoadConfig(r.ConfigPath())
 	if err != nil {
