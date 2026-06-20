@@ -1,36 +1,21 @@
-# Commercial Licensing
+# Commercial Support & Services
 
-lode is dual-licensed:
+lode's core is open source under the [MPL-2.0](LICENSE) — free to use, **including
+commercially and inside closed-source products**. MPL is file-level copyleft: you only
+have to share changes you make to lode's own files, and you can combine it with
+proprietary code. **There is no separate license to buy** to use or embed lode.
 
-- **Open source**: [GNU AGPL-3.0](LICENSE). Free to use, modify, and
-  redistribute under the terms of the AGPL, including the requirement to make
-  your modified source available to network users of the software.
-- **Commercial**: a separate, non-AGPL license for organizations that want to
-  use, embed, or offer lode (or a derivative/hosted service based on it) without
-  the obligations of the AGPL.
+What we offer commercially is built *around* the core, not gated inside it:
 
-## When you need a commercial license
+- **Priority support & SLAs** for teams running lode in production.
+- **Hosted / managed** data-versioning infrastructure (planned).
+- **Enterprise add-ons** (planned) — e.g. access control, audit, dashboards — as
+  separate products, while the core stays open.
 
-You likely want the commercial license if any of these apply:
+Interested? Email **j.s.torchia@gmail.com** with your company, use case, and scale.
 
-- You want to embed lode in a closed-source product or service.
-- You offer (or plan to offer) a hosted/SaaS service built on lode and do not
-  want to publish your modifications under the AGPL.
-- Your organization's policy disallows AGPL-licensed dependencies.
-
-If you only use lode internally as a CLI and comply with the AGPL, you do **not**
-need a commercial license.
-
-## How to obtain one
-
-Contact: **j.s.torchia@gmail.com** with your company name, intended use, and
-scale. Pricing follows a per-organization subscription (the open-core model used
-by projects like Sidekiq).
-
-## Why dual licensing
-
-The AGPL keeps the project genuinely open and prevents third parties from taking
-the code closed-source or hosting it without contributing back. The commercial
-license funds ongoing development. Choosing this model on day one (rather than
-relicensing later) is a deliberate decision to avoid the trust breakage seen when
-projects change their license after the fact.
+> **Why MPL instead of AGPL + a commercial license?** MPL keeps the core genuinely open
+> and copyleft (improvements to lode's own files stay open) without the AGPL network
+> clause that blocks adoption in many organizations — and for a CLI that runs on your own
+> machines, that clause rarely applied anyway. We'd rather be in your stack than sell you
+> a waiver.

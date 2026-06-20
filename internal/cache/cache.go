@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 // Package cache implements DVC's content-addressed object store
 // (.dvc/cache/files/md5/<2>/<rest>) with atomic writes and 0o444 protection.
 package cache

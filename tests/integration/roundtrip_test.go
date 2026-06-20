@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 // Package integration exercises push/pull/gc against a live S3-compatible
 // backend. It connects to the MinIO described by these env vars and skips when
 // they are absent (so `go test -short` and CI-without-S3 stay green):

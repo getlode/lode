@@ -3,27 +3,19 @@
 Thanks for your interest in improving lode. This guide covers how to contribute
 and the licensing terms for contributions.
 
-## Contributor License Agreement (CLA)
+## Developer Certificate of Origin (DCO)
 
-lode is dual-licensed (AGPL-3.0 + a commercial license — see [COMMERCIAL.md](COMMERCIAL.md)).
-To keep that model viable, **every contribution requires agreeing to the CLA**.
+lode is licensed under the [MPL-2.0](LICENSE). Contributions are accepted under a
+**Developer Certificate of Origin** — no copyright assignment, no relicensing rights.
+You keep ownership of your work; you only certify that you have the right to submit it
+under the project's license.
 
-By submitting a pull request you agree that:
+Sign off each commit with `git commit -s`, which appends a `Signed-off-by` line. By
+doing so you certify the [DCO 1.1](https://developercertificate.org/): that you wrote
+the change (or have the right to submit it under the project's license) and that it may
+be distributed publicly under that license.
 
-1. You have the right to submit the contribution (it is your original work, or
-   you are authorized to contribute it).
-2. You grant the project maintainer a perpetual, worldwide, irrevocable license
-   to use, modify, and **relicense** your contribution, including under the
-   commercial license. This is what allows the project to offer a non-AGPL
-   commercial option while staying open source.
-3. Your contribution is and remains available under the AGPL-3.0.
-
-The first time you open a PR, add a comment stating: *"I have read the CLA and I agree
-to it."* A maintainer will acknowledge it. You only need to do this once. (This is a
-manual step today — no CLA bot is wired yet; honesty over theater.)
-
-> Rationale: you cannot sell or relicense code you do not have the rights to.
-> The CLA is what makes the open-core model legally possible.
+That's it — no CLA, no agreement to let anyone relicense your work commercially.
 
 ## Development setup
 

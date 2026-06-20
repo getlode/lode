@@ -3,7 +3,7 @@
 **A fast, drop-in compatible reimplementation of [DVC](https://dvc.org)'s data-versioning core, in Go.**
 
 [![CI](https://github.com/getlode/lode/actions/workflows/ci.yml/badge.svg)](https://github.com/getlode/lode/actions/workflows/ci.yml)
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](LICENSE)
+[![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](LICENSE)
 [![Go 1.23+](https://img.shields.io/badge/Go-1.23%2B-00ADD8.svg)](go.mod)
 
 Point `lode` at your existing DVC repository and get the same format — identical
@@ -152,14 +152,14 @@ test that runs against the real `dvc` on every CI build. Roadmap and how to help
 
 ## License
 
-Dual-licensed: **[AGPL-3.0](LICENSE)** for open-source use, plus a **commercial
-license** for use without the AGPL's obligations — see [COMMERCIAL.md](COMMERCIAL.md).
+**[MPL-2.0](LICENSE)** — free to use, modify, and ship, **including commercially and
+inside closed-source products**. MPL is file-level copyleft: changes to lode's own files
+stay open, but you can combine it with proprietary code, and there's no license to buy.
+Optional commercial **support and services** are offered around the core — see
+[COMMERCIAL.md](COMMERCIAL.md).
 
-> **Using lode internally as a CLI under the AGPL needs no commercial license.** If you
-> only run the binary (and comply with the AGPL), you're done — the commercial license is
-> for embedding it in a closed-source product or hosted service. See [COMMERCIAL.md](COMMERCIAL.md).
-
-Contributions are accepted under a CLA — see [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions are accepted under a [DCO](https://developercertificate.org/) (sign off
+with `git commit -s`) — no CLA, no copyright assignment. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 > `lode` is an independent project and is not affiliated with or endorsed by
 > Iterative, Inc. or the DVC project. "DVC" is used only to describe compatibility.

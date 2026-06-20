@@ -44,6 +44,6 @@ brews:
       token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
     homepage: "https://github.com/getlode/lode"
     description: "Fast, drop-in compatible reimplementation of DVC's data-versioning core, in Go"
-    license: "AGPL-3.0"
+    license: "MPL-2.0"
     test: |
       system "#{bin}/lode", "--version"
