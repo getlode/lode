@@ -33,6 +33,9 @@ var errNoRemote = fmt.Errorf("no remote configured\n" +
 	"  - then set its endpoint if needed: `lode remote modify myremote endpointurl <url>`\n" +
 	"  - or target an existing remote with `-r <name>`")
 
+// errVerifyFailed is returned when verify finds missing or corrupted objects.
+var errVerifyFailed = fmt.Errorf("verification failed: some objects are missing or corrupted")
+
 // errAddNoTarget is shown when `add` is run without a file or directory.
 var errAddNoTarget = fmt.Errorf("specify at least one file or directory to track, e.g. `lode add data/`")
 

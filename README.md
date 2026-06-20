@@ -49,6 +49,7 @@ lode push                      # upload to an S3-compatible remote
 lode pull                      # fetch + checkout on a clean clone
 lode checkout                  # materialize the workspace from cache
 lode gc -f                     # reclaim unreferenced objects
+lode verify                    # check integrity + prove DVC compatibility on your repo
 lode doctor                    # diagnose repo, cache, remotes and DVC coexistence
 ```
 
@@ -62,6 +63,7 @@ Already have a DVC repo? Skip `init` and point `lode` at it — same format, bot
 | `push` / `fetch` / `pull` | Sync with an S3-compatible remote (AWS S3, MinIO, Cloudflare R2, Backblaze B2) |
 | `checkout` | Materialize the workspace (reflink → hardlink/symlink → copy) |
 | `gc` | Remove unreferenced objects from the cache (and remote with `-c`) |
+| `verify` | Re-hash cached objects and check they match their recorded hash — proves integrity and, on a DVC repo, that lode computes the same hashes |
 | `doctor` | Diagnose repo, cache, remotes, format and DVC coexistence; `--json`, CI-friendly exit codes |
 
 ## DVC compatibility

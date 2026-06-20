@@ -45,6 +45,7 @@ func newRootCmd() *cobra.Command {
 		newPullCmd(),
 		newCheckoutCmd(),
 		newGCCmd(),
+		newVerifyCmd(),
 		newDoctorCmd(),
 		newRemoteCmd(),
 	)
