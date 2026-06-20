@@ -5,12 +5,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jtorchia/dvcgo/internal/cache"
-	"github.com/jtorchia/dvcgo/internal/dvcfile"
-	"github.com/jtorchia/dvcgo/internal/hashfile"
-	"github.com/jtorchia/dvcgo/internal/remote"
-	"github.com/jtorchia/dvcgo/internal/repo"
-	"github.com/jtorchia/dvcgo/internal/transfer"
+	"github.com/jtorchia/lode/internal/cache"
+	"github.com/jtorchia/lode/internal/dvcfile"
+	"github.com/jtorchia/lode/internal/hashfile"
+	"github.com/jtorchia/lode/internal/remote"
+	"github.com/jtorchia/lode/internal/repo"
+	"github.com/jtorchia/lode/internal/transfer"
 )
 
 // openStore resolves the remote (explicit name or repo default) and builds its

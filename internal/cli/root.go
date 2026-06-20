@@ -1,4 +1,4 @@
-// Package cli wires the dvcgo command-line interface.
+// Package cli wires the lode command-line interface.
 package cli
 
 import (
@@ -6,7 +6,7 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/jtorchia/dvcgo/internal/repo"
+	"github.com/jtorchia/lode/internal/repo"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +17,7 @@ func SetVersion(v string) { version = v }
 
 func newRootCmd() *cobra.Command {
 	root := &cobra.Command{
-		Use:           "dvcgo",
+		Use:           "lode",
 		Short:         "Versionado de datos rápido, drop-in compatible con DVC",
 		SilenceUsage:  true,
 		SilenceErrors: true,

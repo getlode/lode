@@ -8,13 +8,13 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/jtorchia/dvcgo/internal/cache"
-	"github.com/jtorchia/dvcgo/internal/checkout"
-	"github.com/jtorchia/dvcgo/internal/dvcfile"
-	"github.com/jtorchia/dvcgo/internal/transfer"
+	"github.com/jtorchia/lode/internal/cache"
+	"github.com/jtorchia/lode/internal/checkout"
+	"github.com/jtorchia/lode/internal/dvcfile"
+	"github.com/jtorchia/lode/internal/transfer"
 )
 
-// TestInterop_DVCPushDvcgoPull verifies dvcgo can fetch+materialize objects that
+// TestInterop_DVCPushDvcgoPull verifies lode can fetch+materialize objects that
 // the reference DVC implementation pushed to the same S3 remote (SC-002). It
 // needs both a MinIO (MINIO_* env) and a working `dvc` with the s3 plugin
 // (DVC_BIN; PYTHONPATH may be required).
@@ -41,7 +41,7 @@ func TestInterop_DVCPushDvcgoPull(t *testing.T) {
 	runDVC(t, dir, dvc, "add", "payload.bin")
 	runDVC(t, dir, dvc, "push")
 
-	// Read the .dvc DVC produced and fetch via dvcgo from the same remote.
+	// Read the .dvc DVC produced and fetch via lode from the same remote.
 	f, err := dvcfile.Load(filepath.Join(dir, "payload.bin.dvc"))
 	if err != nil {
 		t.Fatal(err)

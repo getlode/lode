@@ -3,7 +3,7 @@ package checkout
 import (
 	"os"
 
-	"github.com/jtorchia/dvcgo/internal/hashfile"
+	"github.com/jtorchia/lode/internal/hashfile"
 )
 
 // relinkUpToDate reports whether dst already holds the object oid, avoiding a

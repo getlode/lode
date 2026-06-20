@@ -4,9 +4,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jtorchia/dvcgo/internal/cache"
-	"github.com/jtorchia/dvcgo/internal/dvcfile"
-	"github.com/jtorchia/dvcgo/internal/hashfile"
+	"github.com/jtorchia/lode/internal/cache"
+	"github.com/jtorchia/lode/internal/dvcfile"
+	"github.com/jtorchia/lode/internal/hashfile"
 	"github.com/spf13/cobra"
 )
 

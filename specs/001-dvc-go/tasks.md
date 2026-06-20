@@ -19,7 +19,7 @@ description: "Task list for 001-dvc-go: núcleo de versionado de datos en Go, dr
 
 ## Path Conventions
 
-Single project Go: `cmd/dvcgo/`, `internal/`, `tests/` en la raíz del repo (ver plan.md).
+Single project Go: `cmd/lode/`, `internal/`, `tests/` en la raíz del repo (ver plan.md).
 
 ---
 
@@ -27,7 +27,7 @@ Single project Go: `cmd/dvcgo/`, `internal/`, `tests/` en la raíz del repo (ver
 
 **Purpose**: Inicialización del proyecto Go y tooling.
 
-- [X] T001 Inicializar módulo Go y estructura de directorios (`go mod init`, crear `cmd/dvcgo/`, `internal/{cli,repo,dvcfile,hashfile,cache,remote,transfer,checkout,lock}/`, `tests/{oracle,integration}/`) per plan.md
+- [X] T001 Inicializar módulo Go y estructura de directorios (`go mod init`, crear `cmd/lode/`, `internal/{cli,repo,dvcfile,hashfile,cache,remote,transfer,checkout,lock}/`, `tests/{oracle,integration}/`) per plan.md
 - [X] T002 Agregar dependencias en `go.mod`: `spf13/cobra`, `aws-sdk-go-v2/{config,service/s3,feature/s3/transfermanager,credentials}`, `golang.org/x/sync`, `golang.org/x/sys`, `go.etcd.io/bbolt`, `gofrs/flock`, `gopkg.in/ini.v1`, `testcontainers-go/modules/minio`
 - [X] T003 [P] Configurar linting/formato: `.golangci.yml` + `gofumpt`, y `Makefile` con targets `build/test/lint/oracle`
 - [X] T004 [P] Crear `.goreleaser.yaml` (matriz linux/darwin/windows × amd64/arm64, `CGO_ENABLED=0`, `-s -w`, brews/homebrew-tap) y workflow `.github/workflows/release.yml` disparado en tag `v*`
@@ -41,14 +41,14 @@ Single project Go: `cmd/dvcgo/`, `internal/`, `tests/` en la raíz del repo (ver
 
 **⚠️ CRITICAL**: Ninguna user story puede empezar hasta completar esta fase. El gate T016 debe pasar antes de invertir en comandos.
 
-- [X] T006 Esqueleto CLI con cobra: root command + flags persistentes globales (`-v/--verbose`, `-q/--quiet`, `-j/--jobs`, `--cd`) en `internal/cli/root.go` y `cmd/dvcgo/main.go` per contracts/cli.md
+- [X] T006 Esqueleto CLI con cobra: root command + flags persistentes globales (`-v/--verbose`, `-q/--quiet`, `-j/--jobs`, `--cd`) en `internal/cli/root.go` y `cmd/lode/main.go` per contracts/cli.md
 - [X] T007 Descubrimiento del repo y rutas (`.dvc/` hacia arriba en el árbol, paths de cache/tmp) en `internal/repo/repo.go` per data-model.md
 - [X] T008 [P] Parser/writer de `.dvc/config` (INI: `[core]`, `[cache]`, secciones `['remote "name"']`) en `internal/repo/config.go` per data-model.md (RepoConfig)
 - [X] T009 [P] Infra de errores y logging: errores accionables sin stack traces en uso normal, modo verbose, salida humana/`--json` en `internal/cli/output.go`
 - [X] T010 Paquete de locks: lock global exclusivo `flock(LOCK_EX)` sobre `.dvc/tmp/lock` (timeout 3s, reintentos) + rwlock JSON `.dvc/tmp/rwlock` (read/write por path, purga de PIDs muertos) en `internal/lock/lock.go` per research §6
 - [X] T011 [P] Hashing MD5 streaming (chunks 1 MiB, `crypto/md5`) + worker pool (`errgroup.SetLimit(NumCPU)` + `sync.Pool` de buffers + `io.CopyBuffer`) en `internal/hashfile/hash.go` per research §2/§8
 - [X] T012 [P] Serialización exacta del objeto `.dir` (DirManifest): JSON con separadores `", "`/`": "`, claves alfabéticas (`md5` antes de `relpath`), escape ASCII `\uXXXX` para >0x7F, orden ascendente por `relpath`, sin newline final, oid con sufijo `.dir`, en `internal/hashfile/tree.go` per research §2 ⚠️ RIESGO #1
-- [X] T013 [P] State DB con bbolt: clave path → `{ino, mtime, size, md5}`, get/set, invalidación si `(ino,mtime,size)` difiere, en `internal/hashfile/state.go` (`.dvc/tmp/dvcgo/state.db`) per research §5
+- [X] T013 [P] State DB con bbolt: clave path → `{ino, mtime, size, md5}`, get/set, invalidación si `(ino,mtime,size)` difiere, en `internal/hashfile/state.go` (`.dvc/tmp/lode/state.db`) per research §5
 - [X] T014 Lectura/escritura byte-compatible de archivos `.dvc` (YAML 3.x, orden de claves `md5,size,nfiles,hash,path`, 2 espacios indent, un newline final) en `internal/dvcfile/dvcfile.go` per research §1 / data-model.md
 - [X] T015 Cache store content-addressed: paths `files/md5/<2>/<resto>`, escritura atómica tmp+`os.Rename`, `protect` 0o444, `Has`/`Get`/`Add`, en `internal/cache/cache.go` per research §3
 - [X] T016 [P] **Gate oráculo de bytes**: test que genera `.dvc` + objeto `.dir` con DVC real (vía `scripts/gen-dataset.sh` + fixtures) y compara byte-a-byte contra los producidos por `dvcfile` y `hashfile/tree`, en `tests/oracle/oracle_test.go` (cubre archivo individual, dir simple, dir con subdirs y nombres Unicode) per quickstart Escenario 1
@@ -61,7 +61,7 @@ Single project Go: `cmd/dvcgo/`, `internal/`, `tests/` en la raíz del repo (ver
 
 **Goal**: Trackear archivos/directorios y consultar estado en un repo DVC existente, byte-compatible y ≥10× más rápido.
 
-**Independent Test**: Sobre un repo DVC real con dataset grande, `dvcgo add` produce `.dvc`/`.dir` idénticos a DVC y completa ≥10× más rápido; `dvcgo status` no rehashea si nada cambió.
+**Independent Test**: Sobre un repo DVC real con dataset grande, `lode add` produce `.dvc`/`.dir` idénticos a DVC y completa ≥10× más rápido; `lode status` no rehashea si nada cambió.
 
 ### Tests for User Story 1
 
@@ -88,7 +88,7 @@ Single project Go: `cmd/dvcgo/`, `internal/`, `tests/` en la raíz del repo (ver
 ### Tests for User Story 2
 
 - [X] T023 [P] [US2] Test de integración round-trip con MinIO (testcontainers): `add`→`push`→borrar cache/data→`pull`, integridad 100%, en `tests/integration/roundtrip_test.go` (gateado con `testing.Short()`) per SC-003 / quickstart Escenario 3
-- [X] T024 [P] [US2] Test de interoperabilidad bidireccional: `dvcgo push` + `dvc pull` (Python) y viceversa sobre el mismo bucket, en `tests/integration/interop_test.go` per SC-002
+- [X] T024 [P] [US2] Test de interoperabilidad bidireccional: `lode push` + `dvc pull` (Python) y viceversa sobre el mismo bucket, en `tests/integration/interop_test.go` per SC-002
 - [X] T025 [P] [US2] Test de reanudación: matar `push` a mitad y reintentar → sin objetos corruptos, converge a remote íntegro, en `tests/integration/resume_test.go` per SC-007 / quickstart Escenario 4
 
 ### Implementation for User Story 2

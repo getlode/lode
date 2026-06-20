@@ -13,7 +13,7 @@ func (c *Cache) LegacyPath(oid string) string {
 
 // ResolveRead returns the path of an existing object, preferring the modern
 // 3.x layout and falling back to the legacy 2.x layout. This is read-only:
-// dvcgo always writes new objects in the modern layout.
+// lode always writes new objects in the modern layout.
 func (c *Cache) ResolveRead(oid string) (string, bool) {
 	if p := c.ObjectPath(oid); exists(p) {
 		return p, true

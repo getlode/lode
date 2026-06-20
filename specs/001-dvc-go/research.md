@@ -102,7 +102,7 @@ El hash del contenido individual es solo del binario; el nombre no entra. Symlin
 **Rationale**: DVC usa `diskcache` (SQLite+pickle p4), costoso de interoperar desde Go y no requerido por la spec (solo se comparte el repo, no el state interno de `.dvc/tmp`). Mantener state propio sobre la misma tupla da la misma ganancia (mayor optimización real de DVC) sin acoplarse al formato pickle.
 
 - Detección de cambio: si los 3 (ino, mtime, size) coinciden, devolver md5 cacheado sin leer el archivo.
-- Ubicación propia: dentro de `.dvc/tmp/` con un nombre que no colisione con los de DVC-Python (p. ej. `.dvc/tmp/dvcgo/state.db`).
+- Ubicación propia: dentro de `.dvc/tmp/` con un nombre que no colisione con los de DVC-Python (p. ej. `.dvc/tmp/lode/state.db`).
 
 **Alternatives considered**: Leer/escribir la diskcache de Python (rechazado: acoplamiento a pickle p4 y a internals inestables). modernc.org/sqlite si se quiere SQL/inspección; bbolt si se quiere el mínimo KV. **Elección por defecto: bbolt** por simplicidad y cero superficie SQL.
 

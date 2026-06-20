@@ -37,7 +37,7 @@ func Find(start string) (*Repo, error) {
 
 func (r *Repo) CacheDir() string   { return filepath.Join(r.DvcDir, "cache") }
 func (r *Repo) TmpDir() string     { return filepath.Join(r.DvcDir, "tmp") }
-func (r *Repo) StatePath() string  { return filepath.Join(r.TmpDir(), "dvcgo", "state.db") }
+func (r *Repo) StatePath() string  { return filepath.Join(r.TmpDir(), "lode", "state.db") }
 func (r *Repo) LockPath() string   { return filepath.Join(r.TmpDir(), "lock") }
 func (r *Repo) ConfigPath() string { return filepath.Join(r.DvcDir, "config") }
 

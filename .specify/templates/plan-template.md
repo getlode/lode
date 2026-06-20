@@ -43,7 +43,7 @@
 Verify against `.specify/memory/constitution.md` (v1.0.0). Each gate MUST pass or be
 justified in Complexity Tracking:
 
-- **I. DVC Byte-Compatibility**: Does any artifact dvcgo writes stay byte-identical to DVC 3.x?
+- **I. DVC Byte-Compatibility**: Does any artifact lode writes stay byte-identical to DVC 3.x?
   Any intended divergence MUST be explicit, versioned, and opt-in.
 - **II. Oracle-Gated Format Changes**: Does format-affecting work land a byte-oracle test
   (vs the real `dvc`) that is green before command work proceeds?

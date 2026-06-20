@@ -26,15 +26,15 @@ Templates requiring updates:
 Follow-up TODOs: none
 -->
 
-# dvcgo Constitution
+# lode Constitution
 
 ## Core Principles
 
 ### I. DVC Byte-Compatibility (NON-NEGOTIABLE)
 
-Every artifact dvcgo writes that DVC also writes MUST be byte-identical to DVC 3.x:
+Every artifact lode writes that DVC also writes MUST be byte-identical to DVC 3.x:
 the `.dvc` files, the `.dir` manifest objects, and the content-addressed layout of
-the local cache and remotes (`files/md5/<2>/<rest>`). dvcgo and DVC MUST be able to
+the local cache and remotes (`files/md5/<2>/<rest>`). lode and DVC MUST be able to
 operate the same repository interchangeably, in both directions.
 
 When "improve the design" conflicts with "stay byte-compatible with DVC", compatibility
@@ -47,7 +47,7 @@ can gain adoption. A single divergent byte changes a hash and breaks interoperab
 
 Any change that can affect a serialized artifact (hashing, `.dir` serialization, `.dvc`
 emission, cache/remote key layout) MUST be covered by a byte-oracle test that compares
-dvcgo's output against the real `dvc` binary, and that test MUST be green before the
+lode's output against the real `dvc` binary, and that test MUST be green before the
 change is considered done. Command-level work MUST NOT proceed past a red oracle gate.
 
 Rationale: the format is the contract (Principle I). The oracle is the only way to prove
@@ -55,7 +55,7 @@ compatibility objectively rather than by inspection.
 
 ### III. Zero-CGO Single Binary
 
-The entire dependency chain MUST build with `CGO_ENABLED=0`. dvcgo ships as a single
+The entire dependency chain MUST build with `CGO_ENABLED=0`. lode ships as a single
 static binary and MUST cross-compile to linux/darwin/windows × amd64/arm64 without a C
 toolchain. Dependencies that require cgo are not admissible; a pure-Go equivalent MUST be
 chosen instead.
@@ -65,7 +65,7 @@ is the distribution advantage over the Python original. cgo forfeits it.
 
 ### IV. Performance Is the Product
 
-dvcgo exists to be dramatically faster than DVC-Python on the hot path. `add`/`status` on
+lode exists to be dramatically faster than DVC-Python on the hot path. `add`/`status` on
 large datasets MUST stay at least ~10× faster than DVC-Python on comparable hardware.
 Hot paths MUST parallelize CPU-bound work (bounded to NumCPU) and MUST NOT perform
 per-file fsync or per-file database transactions; batch and stream instead. A measurable
@@ -76,7 +76,7 @@ byte-compatibility alone gives users no reason to switch.
 
 ### V. Coexistence Over Reinvention
 
-dvcgo MUST honor the locking and on-disk conventions that let it run safely alongside
+lode MUST honor the locking and on-disk conventions that let it run safely alongside
 DVC-Python on the same repository (the global `.dvc/tmp/lock` via flock, the rwlock JSON).
 New behavior MUST default to what DVC does; novel behavior MUST be additive and explicit,
 never a silent change to shared state.
@@ -87,7 +87,7 @@ shared repo, or surprising DVC, destroys trust faster than any feature builds it
 ## Technology & Scope Constraints
 
 - Language: Go (currently 1.23+), `CGO_ENABLED=0` everywhere.
-- Architecture: a CLI (`cmd/dvcgo`) over a library of single-purpose packages under
+- Architecture: a CLI (`cmd/lode`) over a library of single-purpose packages under
   `internal/` (hashfile, cache, dvcfile, remote, transfer, checkout, lock, repo). Format-risk
   logic (`dvcfile`, `hashfile/tree`) MUST stay isolated and oracle-covered.
 - Remotes: S3-compatible backends (AWS S3, MinIO, Cloudflare R2, Backblaze B2) via a pure-Go
@@ -109,7 +109,7 @@ shared repo, or surprising DVC, destroys trust faster than any feature builds it
 
 ## Governance
 
-This constitution supersedes ad-hoc practice for the dvcgo project. All plans and reviews
+This constitution supersedes ad-hoc practice for the lode project. All plans and reviews
 MUST verify compliance with the principles above; deviations MUST be justified in the plan's
 Complexity Tracking (or the change rejected).
 

@@ -22,7 +22,7 @@ La oportunidad: una herramienta que opera sobre el **mismo formato de repo DVC e
 
 - Q: ¿`fetch` (remote→cache sin checkout) es comando del MVP en los requisitos? → A: Sí; se nombra explícitamente en FR-004.
 - Q: ¿Alcance de la salida `--json` (FR-025, "comandos de consulta")? → A: Solo `status`; el resto emite progreso/contadores legibles, no datos estructurados.
-- Q: ¿Comportamiento al leer metadata DVC con campos desconocidos/más nuevos? → A: Tolerar e ignorar los desconocidos y operar con los conocidos; dvcgo no reescribe `.dvc` ajenos en el MVP.
+- Q: ¿Comportamiento al leer metadata DVC con campos desconocidos/más nuevos? → A: Tolerar e ignorar los desconocidos y operar con los conocidos; lode no reescribe `.dvc` ajenos en el MVP.
 - Q: ¿Cómo se verifica SC-003 con los cuatro backends S3 (AWS S3, MinIO, R2, B2)? → A: Test automatizado contra MinIO (protocolo S3 idéntico; `endpointurl`+path-style cubre los cuatro) + smoke manual documentado para AWS/R2/B2.
 
 ## User Scenarios & Testing *(mandatory)*

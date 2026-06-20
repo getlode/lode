@@ -6,11 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jtorchia/dvcgo/internal/cache"
-	"github.com/jtorchia/dvcgo/internal/checkout"
-	"github.com/jtorchia/dvcgo/internal/dvcfile"
-	"github.com/jtorchia/dvcgo/internal/lock"
-	"github.com/jtorchia/dvcgo/internal/repo"
+	"github.com/jtorchia/lode/internal/cache"
+	"github.com/jtorchia/lode/internal/checkout"
+	"github.com/jtorchia/lode/internal/dvcfile"
+	"github.com/jtorchia/lode/internal/lock"
+	"github.com/jtorchia/lode/internal/repo"
 	"github.com/spf13/cobra"
 )
 
@@ -70,7 +70,7 @@ func runCheckout(targets []string) error {
 	}
 
 	if len(missing) > 0 {
-		infof("%d objetos no están en cache; ejecutá `dvcgo pull` para traerlos", len(missing))
+		infof("%d objetos no están en cache; ejecutá `lode pull` para traerlos", len(missing))
 	}
 	infof("%d salidas materializadas", n)
 	return nil

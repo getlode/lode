@@ -1,6 +1,6 @@
 // Package oracle validates byte-for-byte compatibility with the reference DVC
 // implementation. Each test generates artifacts with the real `dvc` binary and
-// compares them against what dvcgo's primitives produce.
+// compares them against what lode's primitives produce.
 //
 // The tests are skipped when DVC is not available (set DVC_BIN to the dvc
 // executable; PYTHONPATH may be required for a --target install).
@@ -14,8 +14,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jtorchia/dvcgo/internal/dvcfile"
-	"github.com/jtorchia/dvcgo/internal/hashfile"
+	"github.com/jtorchia/lode/internal/dvcfile"
+	"github.com/jtorchia/lode/internal/hashfile"
 )
 
 func dvcBin(t *testing.T) string {
@@ -72,7 +72,7 @@ func findDir(t *testing.T, cacheRoot string) []byte {
 	return data
 }
 
-// TestOracle_SingleFile: dvcgo's .dvc bytes match DVC's for a single file.
+// TestOracle_SingleFile: lode's .dvc bytes match DVC's for a single file.
 func TestOracle_SingleFile(t *testing.T) {
 	dvc := dvcBin(t)
 	dir := initDvcRepo(t, dvc)
@@ -96,11 +96,11 @@ func TestOracle_SingleFile(t *testing.T) {
 	}})
 
 	if !bytes.Equal(got, want) {
-		t.Fatalf("mismatch .dvc archivo:\n--- dvcgo ---\n%s\n--- dvc ---\n%s", got, want)
+		t.Fatalf("mismatch .dvc archivo:\n--- lode ---\n%s\n--- dvc ---\n%s", got, want)
 	}
 }
 
-// TestOracle_Directory: dvcgo's .dir object and .dvc bytes match DVC's for a
+// TestOracle_Directory: lode's .dir object and .dvc bytes match DVC's for a
 // directory (incl. a subdirectory).
 func TestOracle_Directory(t *testing.T) {
 	dvc := dvcBin(t)
@@ -135,7 +135,7 @@ func TestOracle_Directory(t *testing.T) {
 	}
 	gotDir := hashfile.SerializeDir(tree.Entries)
 	if !bytes.Equal(gotDir, wantDir) {
-		t.Fatalf("mismatch objeto .dir:\n--- dvcgo ---\n%s\n--- dvc ---\n%s", gotDir, wantDir)
+		t.Fatalf("mismatch objeto .dir:\n--- lode ---\n%s\n--- dvc ---\n%s", gotDir, wantDir)
 	}
 
 	nfiles := int64(tree.NFiles)
@@ -143,11 +143,11 @@ func TestOracle_Directory(t *testing.T) {
 		{MD5: hashfile.DirOID(tree.Entries), Size: tree.TotalSize, NFiles: &nfiles, Hash: "md5", Path: "data"},
 	}})
 	if !bytes.Equal(gotDvc, wantDvc) {
-		t.Fatalf("mismatch .dvc dir:\n--- dvcgo ---\n%s\n--- dvc ---\n%s", gotDvc, wantDvc)
+		t.Fatalf("mismatch .dvc dir:\n--- lode ---\n%s\n--- dvc ---\n%s", gotDvc, wantDvc)
 	}
 }
 
-// TestOracle_CachePaths: dvcgo lays out cache objects exactly where DVC does.
+// TestOracle_CachePaths: lode lays out cache objects exactly where DVC does.
 func TestOracle_CachePaths(t *testing.T) {
 	dvc := dvcBin(t)
 	dir := initDvcRepo(t, dvc)
@@ -163,6 +163,6 @@ func TestOracle_CachePaths(t *testing.T) {
 	}
 	want := filepath.Join(dir, ".dvc", "cache", "files", "md5", sum[:2], sum[2:])
 	if _, err := os.Stat(want); err != nil {
-		t.Fatalf("DVC no dejó el objeto en %s (hash dvcgo=%s): %v", want, sum, err)
+		t.Fatalf("DVC no dejó el objeto en %s (hash lode=%s): %v", want, sum, err)
 	}
 }
