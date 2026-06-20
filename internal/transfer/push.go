@@ -25,6 +25,7 @@ type Result struct {
 	Transferred int
 	Skipped     int
 	Failed      int
+	FailedOIDs  []string // object ids that failed after retries (for resume/debug)
 }
 
 // Push uploads the objects backing items to the store. Directory (.dir) objects
@@ -53,6 +54,7 @@ func Push(ctx context.Context, store Store, c *cache.Cache, items []Item, jobs i
 	res.Transferred += len(missing) - len(failed)
 	res.Skipped += len(dataOIDs) - len(missing)
 	res.Failed += len(failed)
+	res.FailedOIDs = append(res.FailedOIDs, keysOf(failed)...)
 
 	// Phase 2: .dir objects whose contents are fully present.
 	var dirOIDs []string
@@ -76,6 +78,7 @@ func Push(ctx context.Context, store Store, c *cache.Cache, items []Item, jobs i
 	res.Transferred += len(dirMissing) - len(dirFailed)
 	res.Skipped += len(dirOIDs) - len(dirMissing)
 	res.Failed += len(dirFailed)
+	res.FailedOIDs = append(res.FailedOIDs, keysOf(dirFailed)...)
 
 	return res, nil
 }
@@ -103,6 +106,14 @@ func uploadSet(ctx context.Context, store Store, c *cache.Cache, oids []string, 
 	}
 	_ = g.Wait()
 	return failed
+}
+
+func keysOf(set map[string]struct{}) []string {
+	out := make([]string, 0, len(set))
+	for k := range set {
+		out = append(out, k)
+	}
+	return out
 }
 
 func anyIn(oids []string, set map[string]struct{}) bool {

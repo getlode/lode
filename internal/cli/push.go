@@ -58,6 +58,7 @@ func runPush(ctx context.Context, targets []string, remoteName string) error {
 	}
 	infof("uploaded %s, %d already present, %d failed", plural(res.Transferred, "object", "objects"), res.Skipped, res.Failed)
 	if res.Failed > 0 {
+		reportFailedOIDs(res.FailedOIDs)
 		return errPartialTransfer(res.Failed)
 	}
 	return nil
@@ -101,6 +102,7 @@ func runFetch(ctx context.Context, targets []string, remoteName string) (*cache.
 	}
 	if res.Failed > 0 {
 		infof("downloaded %s, %d already in cache, %d failed", plural(res.Transferred, "object", "objects"), res.Skipped, res.Failed)
+		reportFailedOIDs(res.FailedOIDs)
 		return c, errPartialTransfer(res.Failed)
 	}
 	infof("downloaded %s, %d already in cache", plural(res.Transferred, "object", "objects"), res.Skipped)

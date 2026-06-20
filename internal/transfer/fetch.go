@@ -69,6 +69,7 @@ func Fetch(ctx context.Context, store Store, c *cache.Cache, items []FetchItem, 
 			if err := downloadVerify(gctx, store, c, o, jobs); err != nil {
 				mu.Lock()
 				res.Failed++
+				res.FailedOIDs = append(res.FailedOIDs, o)
 				mu.Unlock()
 				return nil
 			}

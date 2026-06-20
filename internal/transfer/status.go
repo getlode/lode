@@ -21,7 +21,12 @@ func MissingOnRemote(ctx context.Context, store Store, oids []string, jobs int) 
 		return nil, nil
 	}
 	if len(oids) >= traverseThreshold {
-		present, err := store.ListOIDs(ctx)
+		var present map[string]struct{}
+		err := retry(ctx, DefaultRetry, func() error {
+			var e error
+			present, e = store.ListOIDs(ctx)
+			return e
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -41,7 +46,12 @@ func MissingOnRemote(ctx context.Context, store Store, oids []string, jobs int) 
 	for _, o := range oids {
 		o := o
 		g.Go(func() error {
-			ok, err := store.Has(ctx, o)
+			var ok bool
+			err := retry(ctx, DefaultRetry, func() error {
+				var e error
+				ok, e = store.Has(ctx, o)
+				return e
+			})
 			if err != nil {
 				return err
 			}

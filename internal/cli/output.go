@@ -36,6 +36,19 @@ func openState(r *repo.Repo) *hashfile.State {
 	return st
 }
 
+// reportFailedOIDs lists up to a handful of failed object ids so a partial
+// failure is actionable (the rest resume on a re-run).
+func reportFailedOIDs(oids []string) {
+	const max = 10
+	for i, o := range oids {
+		if i == max {
+			infof("  ... and %d more", len(oids)-max)
+			break
+		}
+		infof("  failed: %s", o)
+	}
+}
+
 // infof prints a normal user-facing message (suppressed by --quiet).
 func infof(format string, args ...any) {
 	if flagQuiet {
