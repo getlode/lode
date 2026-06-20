@@ -16,6 +16,15 @@ DVC (Data Version Control) es el estándar de facto para versionar datasets y mo
 
 La oportunidad: una herramienta que opera sobre el **mismo formato de repo DVC existente** (mismos archivos de metadata, mismo layout de cache, mismos nombres de comando) entregando órdenes de magnitud más velocidad en el camino caliente, sin obligar a nadie a migrar. El usuario apunta la herramienta a su repo actual y obtiene la mejora inmediatamente, pudiendo seguir usando DVC de Python sobre el mismo repo. Esto convierte a los 15k+ usuarios existentes en base de adopción inmediata.
 
+## Clarifications
+
+### Session 2026-06-20
+
+- Q: ¿`fetch` (remote→cache sin checkout) es comando del MVP en los requisitos? → A: Sí; se nombra explícitamente en FR-004.
+- Q: ¿Alcance de la salida `--json` (FR-025, "comandos de consulta")? → A: Solo `status`; el resto emite progreso/contadores legibles, no datos estructurados.
+- Q: ¿Comportamiento al leer metadata DVC con campos desconocidos/más nuevos? → A: Tolerar e ignorar los desconocidos y operar con los conocidos; dvcgo no reescribe `.dvc` ajenos en el MVP.
+- Q: ¿Cómo se verifica SC-003 con los cuatro backends S3 (AWS S3, MinIO, R2, B2)? → A: Test automatizado contra MinIO (protocolo S3 idéntico; `endpointurl`+path-style cubre los cuatro) + smoke manual documentado para AWS/R2/B2.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Versionar datasets a alta velocidad en un repo existente (Priority: P1)
@@ -92,7 +101,7 @@ Con el tiempo el cache local (y el remote) acumula versiones de datos que ya nad
 - **Credenciales de remote ausentes o inválidas**: error claro y accionable, sin volcar trazas internas.
 - **Sistemas de archivos sin soporte de enlaces eficientes** (reflink/hardlink/symlink): checkout debe degradar a copia y seguir funcionando correctamente.
 - **Archivos muy grandes** (un único archivo de cientos de GB): el hashing y la transferencia no deben requerir cargar el archivo entero en memoria.
-- **Metadata producida por una versión más nueva de DVC con campos desconocidos**: la herramienta debe comportarse de forma predecible (rechazar con mensaje claro o preservar campos no reconocidos sin romper la compatibilidad).
+- **Metadata producida por una versión más nueva de DVC con campos desconocidos**: la herramienta MUST tolerar los campos desconocidos —los ignora y opera con los campos conocidos— sin fallar. Dado que en el MVP nunca reescribe un `.dvc` ajeno, no hay pérdida en round-trip; la preservación de campos desconocidos al reescribir queda para una fase futura si se edita metadata existente.
 - **Gestión del archivo de exclusión del control de versiones de código** (que los datos no se commiteen como código): debe mantenerse igual que DVC.
 
 ## Requirements *(mandatory)*
@@ -103,7 +112,7 @@ Con el tiempo el cache local (y el remote) acumula versiones de datos que ya nad
 - **FR-001**: La herramienta MUST operar sobre repositorios DVC existentes sin requerir conversión, migración ni reinicialización.
 - **FR-002**: La herramienta MUST leer y escribir los archivos de metadata de datos (descriptores de datos versionados, archivo de lock de pipeline cuando exista, configuración de remotes) en un formato compatible byte-a-byte con el que produce y consume DVC, de modo que ambos puedan operar sobre el mismo repo de forma intercambiable.
 - **FR-003**: La herramienta MUST usar la misma estructura y direccionamiento por contenido del cache local y del almacenamiento remoto que DVC, garantizando interoperabilidad bidireccional (datos producidos por una herramienta son consumibles por la otra).
-- **FR-004**: La herramienta MUST exponer los comandos del MVP con los mismos nombres y semántica básica que DVC: registrar/trackear datos, consultar estado, materializar workspace, subir a remote, bajar de remote y recolección de basura.
+- **FR-004**: La herramienta MUST exponer los comandos del MVP con los mismos nombres y semántica básica que DVC: registrar/trackear datos (`add`), consultar estado (`status`), materializar workspace (`checkout`), descargar del remote al cache sin tocar el workspace (`fetch`), subir al remote (`push`), descargar y materializar (`pull` = `fetch` + `checkout`) y recolección de basura (`gc`).
 - **FR-005**: La herramienta MUST mantener el archivo de exclusión del control de versiones de código (para que los datos trackeados no se versionen como código) con el mismo comportamiento que DVC.
 
 #### Versionado y estado (P1)
@@ -134,7 +143,7 @@ Con el tiempo el cache local (y el remote) acumula versiones de datos que ya nad
 - **FR-022**: La herramienta MUST procesar archivos arbitrariamente grandes mediante streaming, sin cargarlos completos en memoria.
 - **FR-023**: La herramienta MUST emitir mensajes de error claros y accionables (credenciales faltantes, objetos faltantes, hash mismatch, permisos) sin volcar trazas internas en uso normal.
 - **FR-024**: La herramienta MUST distribuirse como binario único autocontenido, sin requerir un runtime ni dependencias externas instaladas por el usuario.
-- **FR-025**: La herramienta MUST ofrecer salida legible por humanos y, para los comandos de consulta, una salida estructurada apta para automatización/CI.
+- **FR-025**: La herramienta MUST ofrecer salida legible por humanos en todos los comandos y, para el comando de consulta `status`, una salida estructurada (`--json`) apta para automatización/CI. Los comandos de transferencia y `gc` reportan progreso/contadores legibles, no `--json`.
 
 ### Key Entities
 
@@ -150,7 +159,7 @@ Con el tiempo el cache local (y el remote) acumula versiones de datos que ya nad
 
 - **SC-001**: En un dataset de referencia de ≥100.000 archivos, registrar cambios (`add`) y consultar estado (`status`) completa al menos 10× más rápido que DVC de Python sobre el mismo hardware.
 - **SC-002**: 100% de los repos DVC de prueba pueden ser operados de forma intercambiable: tras una operación de la herramienta, DVC de Python opera el mismo repo sin errores, y viceversa (compatibilidad de metadata y de layout de cache/remote verificada en una batería de casos).
-- **SC-003**: Un ciclo completo de versionado (trackear → push → borrar cache → pull en clon limpio → checkout) restaura los datos íntegros, con verificación de integridad al 100% de los objetos, contra al menos los cuatro backends S3-compatible objetivo.
+- **SC-003**: Un ciclo completo de versionado (trackear → push → borrar cache → pull en clon limpio → checkout) restaura los datos íntegros, con verificación de integridad al 100% de los objetos. Dado que el protocolo S3 es idéntico entre backends (la diferencia es `endpointurl` + estilo path), la verificación se automatiza contra MinIO y se complementa con un smoke manual documentado contra AWS S3, Cloudflare R2 y Backblaze B2.
 - **SC-004**: La instalación se completa con un único artefacto descargable sin dependencias adicionales, y la herramienta queda operativa en menos de 1 minuto desde la descarga en sistemas soportados.
 - **SC-005**: En consultas de estado sobre datasets sin cambios, la herramienta no recalcula hashes y responde en tiempo proporcional al número de entradas, no al volumen de datos.
 - **SC-006**: Las transferencias remotas saturan de forma demostrable más de un hilo/conexión, logrando throughput agregado significativamente mayor que una transferencia secuencial sobre el mismo enlace.
