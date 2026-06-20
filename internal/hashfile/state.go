@@ -3,6 +3,7 @@ package hashfile
 import (
 	"encoding/binary"
 	"os"
+	"path/filepath"
 	"time"
 
 	bolt "go.etcd.io/bbolt"
@@ -26,7 +27,7 @@ type State struct {
 
 // OpenState opens (creating if needed) the state DB at path.
 func OpenState(path string) (*State, error) {
-	if err := os.MkdirAll(dirOf(path), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return nil, err
 	}
 	db, err := bolt.Open(path, 0o600, &bolt.Options{Timeout: 5 * time.Second})
@@ -112,13 +113,4 @@ func (s *State) PutMany(entries []Entry) error {
 		}
 		return nil
 	})
-}
-
-func dirOf(p string) string {
-	for i := len(p) - 1; i >= 0; i-- {
-		if p[i] == '/' {
-			return p[:i]
-		}
-	}
-	return "."
 }
