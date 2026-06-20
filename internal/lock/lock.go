@@ -1,4 +1,4 @@
-// Package lock implements DVC-compatible repository locking so dvcgo can
+// Package lock implements DVC-compatible repository locking so lode can
 // coexist with DVC-Python on the same repo.
 package lock
 

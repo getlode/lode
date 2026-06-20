@@ -1,4 +1,4 @@
-module github.com/jtorchia/dvcgo
+module github.com/jtorchia/lode
 
 go 1.23.4
 

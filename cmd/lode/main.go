@@ -1,6 +1,6 @@
 package main
 
-import "github.com/jtorchia/dvcgo/internal/cli"
+import "github.com/jtorchia/lode/internal/cli"
 
 // Injected by the linker at release time (see .goreleaser.yaml).
 var (

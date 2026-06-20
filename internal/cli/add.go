@@ -6,12 +6,12 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/jtorchia/dvcgo/internal/cache"
-	"github.com/jtorchia/dvcgo/internal/checkout"
-	"github.com/jtorchia/dvcgo/internal/dvcfile"
-	"github.com/jtorchia/dvcgo/internal/hashfile"
-	"github.com/jtorchia/dvcgo/internal/lock"
-	"github.com/jtorchia/dvcgo/internal/repo"
+	"github.com/jtorchia/lode/internal/cache"
+	"github.com/jtorchia/lode/internal/checkout"
+	"github.com/jtorchia/lode/internal/dvcfile"
+	"github.com/jtorchia/lode/internal/hashfile"
+	"github.com/jtorchia/lode/internal/lock"
+	"github.com/jtorchia/lode/internal/repo"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 )

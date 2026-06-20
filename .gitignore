@@ -3,7 +3,7 @@
 *.test
 *.out
 vendor/
-/dvcgo
+/lode
 /dist/
 
 # DVC test repos / cache

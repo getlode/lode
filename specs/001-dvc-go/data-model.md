@@ -82,7 +82,7 @@ Mapeo de objeto: `<url>/files/md5/<oid[:2]>/<oid[2:]>`. Acceso path-style (`UseP
 
 ## StateEntry (state interno propio — no compartido con DVC-Python)
 
-Optimización para no rehashear. Almacenado en `.dvc/tmp/dvcgo/state.db` (bbolt).
+Optimización para no rehashear. Almacenado en `.dvc/tmp/lode/state.db` (bbolt).
 
 | Campo | Tipo | Reglas |
 |---|---|---|

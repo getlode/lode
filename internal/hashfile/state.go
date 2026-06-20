@@ -12,8 +12,8 @@ var stateBucket = []byte("hashes")
 
 // State is a local cache mapping a file path to its content hash, keyed by
 // (inode, mtime, size). It lets status/add skip re-hashing unchanged files —
-// the single largest performance win. It is private to dvcgo (it does not
-// interoperate with DVC-Python's diskcache) and lives under .dvc/tmp/dvcgo/.
+// the single largest performance win. It is private to lode (it does not
+// interoperate with DVC-Python's diskcache) and lives under .dvc/tmp/lode/.
 type State struct {
 	db *bolt.DB
 }

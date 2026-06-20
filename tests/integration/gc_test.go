@@ -7,17 +7,17 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/jtorchia/dvcgo/internal/cache"
-	"github.com/jtorchia/dvcgo/internal/repo"
+	"github.com/jtorchia/lode/internal/cache"
+	"github.com/jtorchia/lode/internal/repo"
 )
 
-// TestGC_SafetyAndRestorability runs the real dvcgo binary: gc must remove only
+// TestGC_SafetyAndRestorability runs the real lode binary: gc must remove only
 // unreferenced objects and leave tracked data restorable (FR-019/FR-020). Set
-// DVCGO_BIN to the built binary to run it.
+// LODE_BIN to the built binary to run it.
 func TestGC_SafetyAndRestorability(t *testing.T) {
-	bin := os.Getenv("DVCGO_BIN")
+	bin := os.Getenv("LODE_BIN")
 	if bin == "" {
-		t.Skip("DVCGO_BIN no seteado; se omite el test de gc por binario")
+		t.Skip("LODE_BIN no seteado; se omite el test de gc por binario")
 	}
 
 	root := t.TempDir()
@@ -61,6 +61,6 @@ func runBin(t *testing.T, dir, bin string, args ...string) {
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
-		t.Fatalf("dvcgo %v: %v\n%s", args, err, stderr.String())
+		t.Fatalf("lode %v: %v\n%s", args, err, stderr.String())
 	}
 }

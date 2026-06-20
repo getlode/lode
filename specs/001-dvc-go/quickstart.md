@@ -2,7 +2,7 @@
 
 **Feature**: 001-dvc-go | **Phase**: 1
 
-Escenarios ejecutables que prueban el feature end-to-end. El binario se asume llamado `dvcgo`. Detalles de comandos en [contracts/cli.md](contracts/cli.md); estructuras en [data-model.md](data-model.md).
+Escenarios ejecutables que prueban el feature end-to-end. El binario se asume llamado `lode`. Detalles de comandos en [contracts/cli.md](contracts/cli.md); estructuras en [data-model.md](data-model.md).
 
 ## Prerrequisitos
 
@@ -13,7 +13,7 @@ Escenarios ejecutables que prueban el feature end-to-end. El binario se asume ll
 ## Build
 
 ```bash
-go build -o dvcgo ./cmd/dvcgo
+go build -o lode ./cmd/lode
 ```
 
 ---
@@ -34,7 +34,7 @@ find .dvc/cache/files/md5 -name '*.dir' -exec cp {} /tmp/ref.dir \;
 
 # Limpiar y correr nuestra herramienta sobre el mismo estado
 rm -rf .dvc/cache data.dvc data/.gitignore
-../dvcgo add data
+../lode add data
 ```
 
 **Esperado**:
@@ -49,10 +49,10 @@ rm -rf .dvc/cache data.dvc data/.gitignore
 ./scripts/gen-dataset.sh big 100000
 
 # add con nuestra herramienta vs DVC
-time ../dvcgo add big       # esperado: >=10x más rápido que `time dvc add big`
-../dvcgo status             # esperado: "up to date", sin rehashear (rápido, prop. a nº entradas)
+time ../lode add big       # esperado: >=10x más rápido que `time dvc add big`
+../lode status             # esperado: "up to date", sin rehashear (rápido, prop. a nº entradas)
 touch big/file_00001.bin    # cambia mtime de un archivo (sin cambiar contenido)
-../dvcgo status             # esperado: detecta correctamente vía state DB
+../lode status             # esperado: detecta correctamente vía state DB
 ```
 
 **Esperado**: `add` ≥10× más rápido (SC-001); `status` sin cambios no recalcula hashes (SC-005); aprovecha múltiples núcleos.
@@ -64,13 +64,13 @@ Usar MinIO local (vía testcontainers en tests, o manual):
 ```bash
 # MinIO manual
 docker run -d -p 9000:9000 minio/minio server /data
-dvcgo remote add -d local s3://bucket/store    # o editar .dvc/config
-dvcgo remote modify local endpointurl http://localhost:9000
+lode remote add -d local s3://bucket/store    # o editar .dvc/config
+lode remote modify local endpointurl http://localhost:9000
 
-dvcgo add data
-dvcgo push                      # sube solo faltantes; .dir tras sus contenidos
+lode add data
+lode push                      # sube solo faltantes; .dir tras sus contenidos
 rm -rf .dvc/cache data          # simular clon limpio (queda data.dvc)
-dvcgo pull                      # fetch + checkout, con verificación de integridad
+lode pull                      # fetch + checkout, con verificación de integridad
 ```
 
 **Esperado**: `data/` restaurado íntegro; integridad verificada al 100%; interoperable con `dvc pull` de Python sobre el mismo remote (probar ambos sentidos).
@@ -78,8 +78,8 @@ dvcgo pull                      # fetch + checkout, con verificación de integri
 ## Escenario 4 — Reanudación ante interrupción (SC-007)
 
 ```bash
-dvcgo push & sleep 1 && kill -9 %1     # matar a mitad de transferencia
-dvcgo push                             # reintento
+lode push & sleep 1 && kill -9 %1     # matar a mitad de transferencia
+lode push                             # reintento
 ```
 
 **Esperado**: sin objetos corruptos a medio escribir; el reintento converge a remote íntegro; objetos ya presentes se omiten.
@@ -87,7 +87,7 @@ dvcgo push                             # reintento
 ## Escenario 5 — checkout con estrategias de link (P2, FR-017)
 
 ```bash
-dvcgo checkout                 # default reflink,copy
+lode checkout                 # default reflink,copy
 stat -c '%a' data/cat.jpeg     # objeto de cache 0o444 si linkeado
 ```
 
@@ -97,9 +97,9 @@ stat -c '%a' data/cat.jpeg     # objeto de cache 0o444 si linkeado
 
 ```bash
 # crear y desreferenciar una versión
-dvcgo gc                       # esperado: pide confirmación, muestra alcance
-dvcgo gc -f                    # elimina no referenciados; reporta espacio
-dvcgo checkout                 # versiones vigentes siguen restaurables
+lode gc                       # esperado: pide confirmación, muestra alcance
+lode gc -f                    # elimina no referenciados; reporta espacio
+lode checkout                 # versiones vigentes siguen restaurables
 ```
 
 **Esperado**: solo se eliminan objetos no referenciados; confirmación requerida sin `-f`.
@@ -110,4 +110,4 @@ dvcgo checkout                 # versiones vigentes siguen restaurables
 
 - **Unit/oráculo**: tests table-driven que comparan bytes de `.dvc` y `.dir` contra fixtures generados por DVC real (Escenario 1 como test). Gate de CI.
 - **Integración remota**: `testcontainers-go/modules/minio` levanta S3-compatible; cubre Escenarios 3/4. Gateados con `testing.Short()`.
-- **Interoperabilidad bidireccional** (SC-002): matriz de repos operados alternando `dvcgo` y `dvc` (Python) sin errores.
+- **Interoperabilidad bidireccional** (SC-002): matriz de repos operados alternando `lode` y `dvc` (Python) sin errores.

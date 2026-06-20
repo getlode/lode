@@ -1,10 +1,10 @@
-BINARY := dvcgo
+BINARY := lode
 PKG := ./...
 
 .PHONY: build test test-short lint oracle bench clean
 
 build:
-	CGO_ENABLED=0 go build -ldflags "-s -w" -o $(BINARY) ./cmd/dvcgo
+	CGO_ENABLED=0 go build -ldflags "-s -w" -o $(BINARY) ./cmd/lode
 
 test:
 	go test $(PKG)

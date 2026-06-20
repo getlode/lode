@@ -14,7 +14,7 @@ Reimplementar en Go el núcleo de versionado de datos de DVC (Data Version Contr
 
 **Primary Dependencies**: `spf13/cobra` (CLI); `aws-sdk-go-v2/service/s3` + `feature/s3/transfermanager` (remotes S3-compatible vía `BaseEndpoint`+`UsePathStyle`); `golang.org/x/sync/errgroup` + `crypto/md5` + `sync.Pool` (hashing paralelo); `go.etcd.io/bbolt` (state DB puro Go); `gofrs/flock` (lock cross-platform); `golang.org/x/sys/unix` (reflink FICLONE)
 
-**Storage**: Filesystem (cache content-addressed `.dvc/cache/files/md5/...`, modo 0o444), bbolt para state local (`.dvc/tmp/dvcgo/state.db`), remotes S3-compatible (AWS S3, MinIO, Cloudflare R2, Backblaze B2)
+**Storage**: Filesystem (cache content-addressed `.dvc/cache/files/md5/...`, modo 0o444), bbolt para state local (`.dvc/tmp/lode/state.db`), remotes S3-compatible (AWS S3, MinIO, Cloudflare R2, Backblaze B2)
 
 **Testing**: `testing` estándar (table-driven, incluido el oráculo de bytes contra DVC real); `testcontainers-go/modules/minio` para integración de remote (gateado con `testing.Short()`)
 
@@ -61,7 +61,7 @@ specs/001-dvc-go/
 
 ```text
 cmd/
-└── dvcgo/
+└── lode/
     └── main.go              # Entrypoint; wiring de cobra
 
 internal/
@@ -88,7 +88,7 @@ tests/
 .goreleaser.yaml             # Build matrix CGO_ENABLED=0 + Homebrew tap
 ```
 
-**Structure Decision**: Single project (CLI + librería). La librería vive en `internal/` por paquete de responsabilidad única (hashfile, cache, remote, transfer, checkout, lock, dvcfile, repo); `cmd/dvcgo` solo cablea cobra. Esta separación permite testear cada unidad de forma aislada y reutilizar la lógica como librería embebible. Los paquetes con mayor riesgo de compatibilidad (`dvcfile`, `hashfile/tree`) quedan aislados y cubiertos por el oráculo de bytes. (Si se decide exponer la librería públicamente para embeber en apps de terceros, los paquetes estables se promueven de `internal/` a un `pkg/` público en una fase posterior.)
+**Structure Decision**: Single project (CLI + librería). La librería vive en `internal/` por paquete de responsabilidad única (hashfile, cache, remote, transfer, checkout, lock, dvcfile, repo); `cmd/lode` solo cablea cobra. Esta separación permite testear cada unidad de forma aislada y reutilizar la lógica como librería embebible. Los paquetes con mayor riesgo de compatibilidad (`dvcfile`, `hashfile/tree`) quedan aislados y cubiertos por el oráculo de bytes. (Si se decide exponer la librería públicamente para embeber en apps de terceros, los paquetes estables se promueven de `internal/` a un `pkg/` público en una fase posterior.)
 
 ## Complexity Tracking
 

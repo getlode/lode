@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/jtorchia/dvcgo/internal/repo"
+	"github.com/jtorchia/lode/internal/repo"
 	"github.com/spf13/cobra"
 )
 

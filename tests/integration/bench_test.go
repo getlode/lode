@@ -6,13 +6,13 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/jtorchia/dvcgo/internal/cache"
-	"github.com/jtorchia/dvcgo/internal/hashfile"
+	"github.com/jtorchia/lode/internal/cache"
+	"github.com/jtorchia/lode/internal/hashfile"
 )
 
 // BenchmarkAddDir measures the hot path (hash a directory of many small files
 // and stage it into the cache). This is the workload behind SC-001 — manual
-// comparison against DVC-Python on 20k files showed dvcgo ~13× faster
+// comparison against DVC-Python on 20k files showed lode ~13× faster
 // (0.44s vs 5.79s).
 func BenchmarkAddDir(b *testing.B) {
 	root := b.TempDir()
