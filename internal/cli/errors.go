@@ -33,6 +33,9 @@ var errNoRemote = fmt.Errorf("no remote configured\n" +
 	"  - then set its endpoint if needed: `lode remote modify myremote endpointurl <url>`\n" +
 	"  - or target an existing remote with `-r <name>`")
 
+// errAddNoTarget is shown when `add` is run without a file or directory.
+var errAddNoTarget = fmt.Errorf("specify at least one file or directory to track, e.g. `lode add data/`")
+
 // missingObjectsHint formats the guidance shown when objects are missing locally.
 func missingObjectsHint(n int) string {
 	return fmt.Sprintf("%d object(s) not in cache; run `lode pull` to fetch them from the remote", n)

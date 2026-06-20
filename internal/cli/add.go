@@ -20,7 +20,12 @@ func newAddCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "add <target>...",
 		Short: "Track files or directories (drop-in compatible with DVC)",
-		Args:  cobra.MinimumNArgs(1),
+		Args: func(cmd *cobra.Command, args []string) error {
+			if len(args) < 1 {
+				return errAddNoTarget
+			}
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runAdd(args)
 		},
