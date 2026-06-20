@@ -51,6 +51,33 @@ Single static binary, no runtime, no dependencies. Linux / macOS / Windows, amd6
 > For ML *pipelines* (`dvc repro`), keep using DVC — lode accelerates the data layer
 > and coexists with it.
 
+## Quickstart: zero to versioned
+
+```console
+$ mkdir cats-dataset && cd cats-dataset && lode init --no-scm
+Initialized lode repository in .../cats-dataset/.dvc
+
+$ lode add images/                 # hash + cache the folder, write a tiny pointer
+images               tracked -> images.dvc
+
+$ cat images.dvc                   # this text file is what you commit to git — not the data
+outs:
+- md5: da80a810597fa6de9381d9d1b76b3517.dir
+  size: 600000
+  nfiles: 3
+  hash: md5
+  path: images
+
+$ lode status                      # instant — unchanged files are not re-hashed
+Data and pipelines are up to date.
+
+$ lode remote add -d r s3://my-bucket/store && lode push   # back the data up
+```
+
+`images.dvc` is a few lines of text you version in git; the actual files live in the
+cache and your remote. Change one image and `lode status` flags it; `lode push` ships
+only what changed. It is a standard DVC repo — `dvc` reads it too.
+
 ## Usage
 
 ```bash
