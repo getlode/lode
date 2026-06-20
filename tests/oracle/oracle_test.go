@@ -14,8 +14,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jtorchia/lode/internal/dvcfile"
-	"github.com/jtorchia/lode/internal/hashfile"
+	"github.com/getlode/lode/internal/dvcfile"
+	"github.com/getlode/lode/internal/hashfile"
 )
 
 func dvcBin(t *testing.T) string {

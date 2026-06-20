@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/jtorchia/lode/internal/cache"
+	"github.com/getlode/lode/internal/cache"
 	"golang.org/x/sync/errgroup"
 )
 

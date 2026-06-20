@@ -1,4 +1,4 @@
-module github.com/jtorchia/lode
+module github.com/getlode/lode
 
 go 1.23.4
 

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/jtorchia/lode/internal/cache"
-	"github.com/jtorchia/lode/internal/hashfile"
+	"github.com/getlode/lode/internal/cache"
+	"github.com/getlode/lode/internal/hashfile"
 	"golang.org/x/sync/errgroup"
 )
 

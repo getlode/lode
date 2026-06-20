@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/jtorchia/lode/internal/cache"
-	"github.com/jtorchia/lode/internal/repo"
+	"github.com/getlode/lode/internal/cache"
+	"github.com/getlode/lode/internal/repo"
 )
 
 // TestGC_SafetyAndRestorability runs the real lode binary: gc must remove only

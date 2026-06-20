@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/jtorchia/lode/internal/cache"
-	"github.com/jtorchia/lode/internal/hashfile"
+	"github.com/getlode/lode/internal/cache"
+	"github.com/getlode/lode/internal/hashfile"
 )
 
 // BenchmarkAddDir measures the hot path (hash a directory of many small files

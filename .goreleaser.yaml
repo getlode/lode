@@ -26,8 +26,8 @@ checksum:
 
 brews:
   - repository:
-      owner: jtorchia
+      owner: getlode
       name: homebrew-tap
-    homepage: "https://github.com/jtorchia/lode"
+    homepage: "https://github.com/getlode/lode"
     description: "Núcleo de versionado de datos en Go, drop-in compatible con DVC"
     license: "AGPL-3.0"
