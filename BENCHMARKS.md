@@ -34,19 +34,19 @@ cache with order alternated.
 
 `scripts/benchmark.sh` with `REGIMES="50000:1024 16:67108864"`:
 
-| files × size | operation | DVC median±sd | lode median±sd | speedup | lode RSS |
-|---|---|--:|--:|--:|--:|
-| 50,000 × 1KB | `add` | 12.39s ±0.06 | 1.01s ±0.02 | **12.3×** | 104 MB |
-| 50,000 × 1KB | `status` | 1.91s ±0.01 | 0.59s ±0.01 | **3.2×** | 112 MB |
-| 50,000 × 1KB | `add` (1 changed) | 3.38s ±0.02 | 0.23s ±0.01 | **14.7×** | 57 MB |
-| 16 × 64MB (1 GB) | `add` | 1.17s ±0.12 | 0.23s ±0.00 | **5.1×** | 11 MB |
-| 16 × 64MB (1 GB) | `status` | 0.34s ±0.08 | 0.14s ±0.01 | **2.4×** | 11 MB |
-| 16 × 64MB (1 GB) | `add` (1 changed) | 0.69s ±0.08 | 0.10s ±0.03 | **6.9×** | 9 MB |
+| files × size | operation | DVC median±sd | lode median±sd | speedup | DVC RSS | lode RSS |
+|---|---|--:|--:|--:|--:|--:|
+| 50,000 × 1KB | `add` | 12.18s ±0.16 | 0.97s ±0.02 | **12.6×** | 218 MB | 113 MB |
+| 50,000 × 1KB | `status` | 1.83s ±0.01 | 0.57s ±0.02 | **3.2×** | 184 MB | 110 MB |
+| 50,000 × 1KB | `add` (1 changed) | 3.26s ±0.01 | 0.22s ±0.00 | **14.8×** | 201 MB | 60 MB |
+| 16 × 64MB (1 GB) | `add` | 1.55s ±0.16 | 0.42s ±0.02 | **3.7×** | 69 MB | 11 MB |
+| 16 × 64MB (1 GB) | `status` | 0.31s ±0.02 | 0.13s ±0.01 | **2.4×** | 48 MB | 11 MB |
+| 16 × 64MB (1 GB) | `add` (1 changed) | 1.03s ±0.02 | 0.59s ±0.01 | **1.7×** | 63 MB | 9 MB |
 
 The honest story across regimes: **~12× on many small files** (DVC's per-file Python
-overhead dominates), narrowing to **~5× on large files** (both tools become hash-bound,
+overhead dominates), narrowing to **~3.7× on large files** (and ~1.7× when only one large file changed — both tools become hash-bound,
 so the gap shrinks — exactly as expected). `status` is a steadier ~2.4–3.2× because both
-tools cache state. The `add (1 changed)` row is the structural win: change one file and
+tools cache state, and lode uses roughly **half to a sixth of DVC's memory** (RSS columns). The `add (1 changed)` row on small files is the structural win: change one file and
 DVC reprocesses the directory; lode's state DB skips the rest.
 
 ## Real dataset: Tiny-ImageNet (100,200 files)
@@ -54,15 +54,15 @@ DVC reprocesses the directory; lode's state DB skips the rest.
 A real public dataset (`wget http://cs231n.stanford.edu/tiny-imagenet-200.zip`),
 `train/` split, same rigorous method:
 
-| operation | DVC median±sd | lode median±sd | speedup | lode RSS |
-|---|--:|--:|--:|--:|
-| `add` (cold) | 26.08s ±0.32 | 2.24s ±0.09 | **11.6×** | 153 MB |
-| `status` (no change) | 3.58s ±0.04 | 1.22s ±0.02 | **2.9×** | 152 MB |
-| `add` (1 file changed) | 6.31s ±0.10 | 0.48s ±0.03 | **13.1×** | 121 MB |
+| operation | DVC median±sd | lode median±sd | speedup | DVC RSS | lode RSS |
+|---|--:|--:|--:|--:|--:|
+| `add` (cold) | 25.40s ±0.13 | 2.05s ±0.02 | **12.4×** | 373 MB | 148 MB |
+| `status` (no change) | 3.46s ±0.01 | 1.16s ±0.02 | **3.0×** | 256 MB | 159 MB |
+| `add` (1 file changed) | 6.10s ±0.02 | 0.46s ±0.01 | **13.2×** | 365 MB | 125 MB |
 
 The real-dataset numbers match the synthetic many-small regime and barely move under
 the rigorous method (median of 5, order-alternated) — i.e. the speedup is real, not a
-page-cache artifact. At 100k files lode's resident memory is ~150 MB (it builds the file
+page-cache artifact. At 100k files lode's resident memory is ~150 MB vs DVC's ~370 MB (it builds the file
 list in memory); that scales with file count and is the honest cost of the parallel walk.
 
 ## How lode is faster
@@ -84,7 +84,7 @@ list in memory); that scales with file count and is the honest cost of the paral
 ```bash
 make build
 # synthetic regimes (count:bytes), N runs each
-LODE=./lode DVC_BIN=$(which dvc) RUNS=5 REGIMES="50000:1024 16:67108864" scripts/benchmark.sh
+LODE=./lode DVC_BIN=$(which dvc) RUNS=6 REGIMES="50000:1024 16:67108864" scripts/benchmark.sh
 # a real dataset directory
-LODE=./lode DVC_BIN=$(which dvc) RUNS=5 scripts/benchmark.sh /path/to/dataset-dir
+LODE=./lode DVC_BIN=$(which dvc) RUNS=6 scripts/benchmark.sh /path/to/dataset-dir
 ```

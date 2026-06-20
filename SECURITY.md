@@ -43,6 +43,12 @@ Release binaries are built by the tagged GitHub Actions pipeline, with:
 
 - **`checksums.txt`** for each release;
 - a **cosign keyless signature** of the checksums (`checksums.txt.sig` + `.pem`),
-  verifiable with `cosign verify-blob`;
+  verifiable with (substitute the release tag):
+  ```
+  cosign verify-blob checksums.txt \
+    --certificate checksums.txt.pem --signature checksums.txt.sig \
+    --certificate-identity-regexp 'https://github.com/getlode/lode/.github/workflows/release.yml@.*' \
+    --certificate-oidc-issuer https://token.actions.githubusercontent.com
+  ```
 - an **SBOM** per archive (syft);
 - a **GitHub build-provenance attestation** (`gh attestation verify <file> --repo getlode/lode`).

@@ -19,7 +19,7 @@ export LC_ALL=C DVC_NO_ANALYTICS=1
 
 LODE="${LODE:-$(pwd)/lode}"
 DVC="${DVC_BIN:-dvc}"
-RUNS="${RUNS:-5}"
+RUNS="${RUNS:-6}"
 GEN="$(cd "$(dirname "$0")" && pwd)/gen-dataset.sh"
 TIME=/usr/bin/time
 NOISE=0.05 # seconds; medians at/below this are flagged as noise-floor
@@ -97,8 +97,8 @@ bench_dataset() { # work sub header
     iop=$(interop_check "$work" "$sub")
 
     echo "### $header | interop(lode->dvc): $iop"
-    echo "| operation | DVC median±sd | lode median±sd | speedup | lode RSS |"
-    echo "|-----------|--------------:|---------------:|--------:|---------:|"
+    echo "| operation | DVC median±sd | lode median±sd | speedup | DVC RSS | lode RSS |"
+    echo "|-----------|--------------:|---------------:|--------:|--------:|---------:|"
     for op in add status incr; do
       lm=$(stats "$tmproot/lode.$op.t"); lmed=${lm%% *}
       lrss=$(sort -n "$tmproot/lode.$op.r" | tail -1)
@@ -106,8 +106,10 @@ bench_dataset() { # work sub header
         dm=$(stats "$tmproot/dvc.$op.t"); dmed=${dm%% *}
         sp=$(awk -v d="$dmed" -v l="$lmed" 'BEGIN{ if(l>0) printf "%.1fx", d/l; else printf "-" }')
         flag=$(awk -v d="$dmed" -v l="$lmed" -v n="$NOISE" 'BEGIN{ if(d<=n||l<=n) printf " (noise-floor)"; }')
-        printf '| %s | %ss ±%s | %ss ±%s | **%s**%s | %sMB |\n' \
+        drss=$(sort -n "$tmproot/dvc.$op.r" | tail -1)
+        printf '| %s | %ss ±%s | %ss ±%s | **%s**%s | %sMB | %sMB |\n' \
           "$op" "$dmed" "$(echo $dm|cut -d' ' -f2)" "$lmed" "$(echo $lm|cut -d' ' -f2)" "$sp" "$flag" \
+          "$(awk -v k="$drss" 'BEGIN{printf "%.0f", k/1024}')" \
           "$(awk -v k="$lrss" 'BEGIN{printf "%.0f", k/1024}')"
       else
         printf '| %s | (no dvc) | %ss ±%s | - | %sMB |\n' "$op" "$lmed" "$(echo $lm|cut -d' ' -f2)" \

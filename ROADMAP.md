@@ -10,18 +10,16 @@ data-versioning core — your existing DVC repo, faster, with zero migration.
 - `verify` — integrity check that also proves byte-compatibility with DVC
 - S3-compatible remotes (AWS S3, MinIO, Cloudflare R2, Backblaze B2)
 - Byte-for-byte compatibility, gated in CI against the real `dvc`
-- Reproducible benchmark harness (`scripts/benchmark.sh`)
+- Rigorous, reproducible benchmark harness (median±σ, order-alternated, `scripts/benchmark.sh`)
+- Signed release binaries (cosign), SBOM (syft), and SLSA build provenance
+- Production cloud auth — IAM instance role / IRSA / profile for S3 (CI on EKS/GKE)
+- Transfer reliability — retry/backoff with jitter and resumable partial failures
+- State-DB robustness — never a false "up to date" (`--rehash` for NFS / restored backups)
 
 ## Planned (roughly in order)
 
 Each is specced under [`specs/`](specs/):
 
-- **Security & supply chain** — signed release binaries (cosign), SBOM, provenance;
-  harden credential handling.
-- **Production cloud auth** — IAM instance role / IRSA / SSO for S3 (works in CI on EKS/GKE).
-- **Transfer reliability** — retry/backoff and partial-failure handling for push/pull at scale.
-- **State-DB robustness** — never a false "up to date" on tricky filesystems (NFS,
-  recycled inodes, restored mtimes); strict/rehash mode.
 - **More remotes** — GCS, then Azure.
 - **Pipelines / `repro`** — the larger piece; until then lode coexists with DVC for
   pipelines (DVC stays for `dvc.yaml`/`dvc repro`).
