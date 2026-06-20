@@ -25,7 +25,7 @@ Single project Go: `internal/cli/`, `internal/remote/`, `tests/`.
 
 ## Phase 1: Setup
 
-- [ ] T001 [P] Agregar helper de pluralización `plural(n, singular, pluralForm)` (y cualquier texto compartido) en `internal/cli/strings.go` per data-model.md
+- [X] T001 [P] Agregar helper de pluralización `plural(n, singular, pluralForm)` (y cualquier texto compartido) en `internal/cli/strings.go` per data-model.md
 
 ---
 
@@ -33,7 +33,7 @@ Single project Go: `internal/cli/`, `internal/remote/`, `tests/`.
 
 **Purpose**: el test que valida que la salida quede 100% en inglés. Se escribe ahora; pasa cuando las traducciones aterrizan.
 
-- [ ] T002 Test de barrido de inglés: corre `--help` de root y de cada subcomando + caminos de operación/error frecuentes, y afirma que la salida no contiene caracteres no-ASCII de español ni palabras de una lista negra (archivo, remoto, objetos, salidas, materializa, subidos, fallidos, agregado, Continuar, etc.), en `tests/integration/english_cli_test.go` per quickstart / SC-001
+- [X] T002 Test de barrido de inglés: corre `--help` de root y de cada subcomando + caminos de operación/error frecuentes, y afirma que la salida no contiene caracteres no-ASCII de español ni palabras de una lista negra (archivo, remoto, objetos, salidas, materializa, subidos, fallidos, agregado, Continuar, etc.), en `tests/integration/english_cli_test.go` per quickstart / SC-001
 
 **Checkpoint**: el test existe (en rojo hasta traducir) → guía la traducción.
 
@@ -47,12 +47,12 @@ Single project Go: `internal/cli/`, `internal/remote/`, `tests/`.
 
 ### Implementation for User Story 1
 
-- [ ] T003 [P] [US1] Traducir root (short) y `add` (short/long, help de flags, mensaje "tracked ->", error "file changed during add") en `internal/cli/root.go` y `internal/cli/add.go` per contracts/strings.md
-- [ ] T004 [P] [US1] Traducir `status` (short, flag `--json`) en `internal/cli/status.go`
-- [ ] T005 [US1] Traducir `push`/`fetch`/`pull` (shorts y mensajes de resultado con plurales naturales vía `plural`) en `internal/cli/push.go`
-- [ ] T006 [US1] Traducir `checkout` (short, "materialized N output(s)") en `internal/cli/checkout.go`
-- [ ] T007 [US1] Traducir `gc` (short, preview/prompt/cancelled/freed/removed, plurales; mantener que el prompt acepta yes/y) en `internal/cli/gc.go`
-- [ ] T008 [P] [US1] Traducir el comando `remote` (short, "remote added", help de flags) en `internal/cli/remote.go`
+- [X] T003 [P] [US1] Traducir root (short) y `add` (short/long, help de flags, mensaje "tracked ->", error "file changed during add") en `internal/cli/root.go` y `internal/cli/add.go` per contracts/strings.md
+- [X] T004 [P] [US1] Traducir `status` (short, flag `--json`) en `internal/cli/status.go`
+- [X] T005 [US1] Traducir `push`/`fetch`/`pull` (shorts y mensajes de resultado con plurales naturales vía `plural`) en `internal/cli/push.go`
+- [X] T006 [US1] Traducir `checkout` (short, "materialized N output(s)") en `internal/cli/checkout.go`
+- [X] T007 [US1] Traducir `gc` (short, preview/prompt/cancelled/freed/removed, plurales; mantener que el prompt acepta yes/y) en `internal/cli/gc.go`
+- [X] T008 [P] [US1] Traducir el comando `remote` (short, "remote added", help de flags) en `internal/cli/remote.go`
 
 **Checkpoint**: la salida de operación normal y help está 100% en inglés.
 
@@ -66,8 +66,8 @@ Single project Go: `internal/cli/`, `internal/remote/`, `tests/`.
 
 ### Implementation for User Story 2
 
-- [ ] T009 [US2] Traducir errores en `internal/cli/transfer.go` ("remote %q is not configured", "manifest %s is not in the cache (add the data first)") y los 3 errores de URL en `internal/remote/s3.go` ("remote has no url", "remote url must start with s3://", "remote url has no bucket") per contracts/strings.md
-- [ ] T010 [US2] Pasada de consistencia de terminología: aplicar el glosario canónico (remote/cache/workspace/object/output/repository) en TODOS los mensajes y alinear la redacción de los textos del 002 (init/doctor/errores) si difieren, en `internal/cli/*.go` per data-model.md / FR-003
+- [X] T009 [US2] Traducir errores en `internal/cli/transfer.go` ("remote %q is not configured", "manifest %s is not in the cache (add the data first)") y los 3 errores de URL en `internal/remote/s3.go` ("remote has no url", "remote url must start with s3://", "remote url has no bucket") per contracts/strings.md
+- [X] T010 [US2] Pasada de consistencia de terminología: aplicar el glosario canónico (remote/cache/workspace/object/output/repository) en TODOS los mensajes y alinear la redacción de los textos del 002 (init/doctor/errores) si difieren, en `internal/cli/*.go` per data-model.md / FR-003
 
 **Checkpoint**: errores en inglés y un único término por concepto en toda la herramienta.
 
@@ -75,8 +75,8 @@ Single project Go: `internal/cli/`, `internal/remote/`, `tests/`.
 
 ## Phase 5: Polish & Cross-Cutting
 
-- [ ] T011 [P] Re-habilitar el linter `misspell` en `.golangci.yml` (se había desactivado por el español) y corregir lo que marque; correr `golangci-lint run`
-- [ ] T012 Ejecutar la validación del quickstart (barrido de `--help` + operaciones + errores) y confirmar el test T002 en verde; build + `go vet` + suite completa
+- [X] T011 [P] Re-habilitar el linter `misspell` en `.golangci.yml` (se había desactivado por el español) y corregir lo que marque; correr `golangci-lint run`
+- [X] T012 Ejecutar la validación del quickstart (barrido de `--help` + operaciones + errores) y confirmar el test T002 en verde; build + `go vet` + suite completa
 
 ---
 

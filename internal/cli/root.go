@@ -17,7 +17,7 @@ func SetVersion(v string) { version = v }
 func newRootCmd() *cobra.Command {
 	root := &cobra.Command{
 		Use:           "lode",
-		Short:         "Versionado de datos rápido, drop-in compatible con DVC",
+		Short:         "Fast, drop-in compatible data versioning (DVC 3.x)",
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		Version:       version,
@@ -31,10 +31,10 @@ func newRootCmd() *cobra.Command {
 		},
 	}
 	pf := root.PersistentFlags()
-	pf.BoolVarP(&flagVerbose, "verbose", "v", false, "salida detallada")
-	pf.BoolVarP(&flagQuiet, "quiet", "q", false, "solo errores")
-	pf.IntVarP(&flagJobs, "jobs", "j", runtime.NumCPU(), "concurrencia")
-	pf.StringVar(&flagChdir, "cd", "", "ejecutar como si el cwd fuera este directorio")
+	pf.BoolVarP(&flagVerbose, "verbose", "v", false, "verbose output")
+	pf.BoolVarP(&flagQuiet, "quiet", "q", false, "errors only")
+	pf.IntVarP(&flagJobs, "jobs", "j", runtime.NumCPU(), "concurrency")
+	pf.StringVar(&flagChdir, "cd", "", "run as if the current directory were this path")
 
 	root.AddCommand(
 		newInitCmd(),

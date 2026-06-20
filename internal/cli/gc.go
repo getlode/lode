@@ -23,15 +23,15 @@ func newGCCmd() *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "gc",
-		Short: "Elimina objetos no referenciados del cache (y del remote con -c)",
+		Short: "Remove unreferenced objects from the cache (and the remote with -c)",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runGC(cmd.Context(), force, cloud, remoteName)
 		},
 	}
-	cmd.Flags().BoolVarP(&force, "force", "f", false, "borrar sin pedir confirmación")
-	cmd.Flags().BoolVarP(&cloud, "cloud", "c", false, "también limpiar el remote")
-	cmd.Flags().StringVarP(&remoteName, "remote", "r", "", "remote a usar con -c")
-	cmd.Flags().BoolP("workspace", "w", true, "tomar referencias del workspace")
+	cmd.Flags().BoolVarP(&force, "force", "f", false, "delete without asking for confirmation")
+	cmd.Flags().BoolVarP(&cloud, "cloud", "c", false, "also clean the remote")
+	cmd.Flags().StringVarP(&remoteName, "remote", "r", "", "remote to use with -c")
+	cmd.Flags().BoolP("workspace", "w", true, "take references from the workspace")
 	return cmd
 }
 
@@ -66,13 +66,13 @@ func runGC(ctx context.Context, force, cloud bool, remoteName string) error {
 	}
 
 	if len(unreferenced) == 0 {
-		infof("No hay objetos no referenciados que eliminar.")
+		infof("No unreferenced objects to remove.")
 		return nil
 	}
 
-	infof("Se eliminarán %d objetos del cache (%s).", len(unreferenced), humanBytes(freed))
+	infof("Will remove %s from the cache (%s).", plural(len(unreferenced), "object", "objects"), humanBytes(freed))
 	if !force && !confirm() {
-		infof("Cancelado.")
+		infof("Cancelled.")
 		return nil
 	}
 
@@ -81,7 +81,7 @@ func runGC(ctx context.Context, force, cloud bool, remoteName string) error {
 			return err
 		}
 	}
-	infof("Liberados %s del cache local.", humanBytes(freed))
+	infof("Freed %s from the local cache.", humanBytes(freed))
 
 	if cloud {
 		store, err := openStore(r, remoteName)
@@ -101,7 +101,7 @@ func runGC(ctx context.Context, force, cloud bool, remoteName string) error {
 				n++
 			}
 		}
-		infof("Eliminados %d objetos no referenciados del remote.", n)
+		infof("Removed %s from the remote.", plural(n, "unreferenced object", "unreferenced objects"))
 	}
 	return nil
 }
@@ -140,7 +140,7 @@ func reachableOIDs(r *repo.Repo, c *cache.Cache) (map[string]struct{}, error) {
 }
 
 func confirm() bool {
-	fmt.Fprint(os.Stderr, "¿Continuar? (yes/no): ")
+	fmt.Fprint(os.Stderr, "Continue? (yes/no): ")
 	sc := bufio.NewScanner(os.Stdin)
 	if !sc.Scan() {
 		return false

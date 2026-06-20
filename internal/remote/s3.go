@@ -24,7 +24,7 @@ type S3 struct {
 // NewS3 builds an S3 store from a remote config.
 func NewS3(r repo.Remote) (*S3, error) {
 	if r.URL == "" {
-		return nil, errors.New("remote sin url")
+		return nil, errors.New("remote has no url")
 	}
 	bucket, prefix, err := parseS3URL(r.URL)
 	if err != nil {
@@ -135,12 +135,12 @@ func (s *S3) EnsureBucket(ctx context.Context) error {
 func parseS3URL(raw string) (bucket, prefix string, err error) {
 	rest := strings.TrimPrefix(raw, "s3://")
 	if rest == raw {
-		return "", "", errors.New("url de remote debe empezar con s3://")
+		return "", "", errors.New("remote url must start with s3://")
 	}
 	parts := strings.SplitN(rest, "/", 2)
 	bucket = parts[0]
 	if bucket == "" {
-		return "", "", errors.New("url de remote sin bucket")
+		return "", "", errors.New("remote url has no bucket")
 	}
 	if len(parts) == 2 {
 		prefix = strings.Trim(parts[1], "/")

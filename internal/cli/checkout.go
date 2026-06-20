@@ -17,7 +17,7 @@ import (
 func newCheckoutCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "checkout [target]...",
-		Short: "Materializa el workspace según los .dvc (desde el cache)",
+		Short: "Materialize the workspace from the cache",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runCheckout(args)
 		},
@@ -72,6 +72,6 @@ func runCheckout(targets []string) error {
 	if len(missing) > 0 {
 		infof("%s", missingObjectsHint(len(missing)))
 	}
-	infof("%d salidas materializadas", n)
+	infof("materialized %s", plural(n, "output", "outputs"))
 	return nil
 }

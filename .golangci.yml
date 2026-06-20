@@ -9,9 +9,10 @@ linters:
     - staticcheck
     - ineffassign
     - unused
-  # Note: `misspell` is intentionally disabled — user-facing strings and comments
-  # are currently in Spanish, which an English-only spell checker flags as typos.
-  # Revisit if/when the CLI output is migrated to English.
+  # `misspell` stays disabled: it flags Spanish in code COMMENTS too, but this
+  # feature scopes English to user-facing OUTPUT only. That requirement is gated
+  # by tests/integration/english_cli_test.go (the output sweep). Comments may be
+  # migrated to English separately.
 
 issues:
   exclude-rules:

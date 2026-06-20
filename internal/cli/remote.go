@@ -10,7 +10,7 @@ import (
 func newRemoteCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remote",
-		Short: "Gestiona remotes en .dvc/config",
+		Short: "Manage remotes in .dvc/config",
 	}
 	cmd.AddCommand(newRemoteAddCmd(), newRemoteModifyCmd())
 	return cmd
@@ -20,7 +20,7 @@ func newRemoteAddCmd() *cobra.Command {
 	var makeDefault bool
 	cmd := &cobra.Command{
 		Use:   "add <name> <url>",
-		Short: "Agrega un remote (url s3://bucket/prefix)",
+		Short: "Add a remote (url s3://bucket/prefix)",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			r, err := requireRepo()
@@ -30,18 +30,18 @@ func newRemoteAddCmd() *cobra.Command {
 			if err := repo.SetRemote(r.ConfigPath(), repo.Remote{Name: args[0], URL: args[1]}, makeDefault); err != nil {
 				return err
 			}
-			infof("remote %q agregado", args[0])
+			infof("remote %q added", args[0])
 			return nil
 		},
 	}
-	cmd.Flags().BoolVarP(&makeDefault, "default", "d", false, "marcar como remote por defecto")
+	cmd.Flags().BoolVarP(&makeDefault, "default", "d", false, "set as the default remote")
 	return cmd
 }
 
 func newRemoteModifyCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "modify <name> <option> <value>",
-		Short: "Modifica una opción de un remote (endpointurl, region, access_key_id, ...)",
+		Short: "Modify a remote option (endpointurl, region, access_key_id, ...)",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			r, err := requireRepo()
@@ -83,7 +83,7 @@ func setRemoteOption(r *repo.Remote, option, value string) error {
 	case "profile":
 		r.Profile = value
 	default:
-		return fmt.Errorf("opción de remote desconocida: %s", option)
+		return fmt.Errorf("unknown remote option: %s", option)
 	}
 	return nil
 }

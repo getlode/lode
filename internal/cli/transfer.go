@@ -29,7 +29,7 @@ func openStore(r *repo.Repo, remoteName string) (transfer.Store, error) {
 	}
 	rm, ok := cfg.Remotes[name]
 	if !ok {
-		return nil, fmt.Errorf("el remote %q no está configurado", name)
+		return nil, fmt.Errorf("remote %q is not configured", name)
 	}
 	return remote.NewS3(rm)
 }
@@ -47,7 +47,7 @@ func pushItems(c *cache.Cache, dvcFiles []string) ([]transfer.Item, error) {
 			if out.IsDir() {
 				data, err := os.ReadFile(c.ObjectPath(out.MD5))
 				if err != nil {
-					return nil, fmt.Errorf("manifiesto %s no está en cache (agregá los datos primero): %w", out.MD5, err)
+					return nil, fmt.Errorf("manifest %s is not in the cache (add the data first): %w", out.MD5, err)
 				}
 				entries, err := hashfile.ParseDir(data)
 				if err != nil {

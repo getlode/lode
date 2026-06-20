@@ -15,12 +15,12 @@ func newPushCmd() *cobra.Command {
 	var remoteName string
 	cmd := &cobra.Command{
 		Use:   "push [target]...",
-		Short: "Sube objetos al remote",
+		Short: "Upload objects to the remote",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runPush(cmd.Context(), args, remoteName)
 		},
 	}
-	cmd.Flags().StringVarP(&remoteName, "remote", "r", "", "remote a usar")
+	cmd.Flags().StringVarP(&remoteName, "remote", "r", "", "remote to use")
 	return cmd
 }
 
@@ -52,7 +52,7 @@ func runPush(ctx context.Context, targets []string, remoteName string) error {
 	if err != nil {
 		return err
 	}
-	infof("%d archivos subidos, %d ya presentes, %d fallidos", res.Transferred, res.Skipped, res.Failed)
+	infof("uploaded %s, %d already present, %d failed", plural(res.Transferred, "object", "objects"), res.Skipped, res.Failed)
 	return nil
 }
 
@@ -60,13 +60,13 @@ func newFetchCmd() *cobra.Command {
 	var remoteName string
 	cmd := &cobra.Command{
 		Use:   "fetch [target]...",
-		Short: "Descarga objetos del remote al cache (sin tocar el workspace)",
+		Short: "Download objects from the remote into the cache (no workspace changes)",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			_, err := runFetch(cmd.Context(), args, remoteName)
 			return err
 		},
 	}
-	cmd.Flags().StringVarP(&remoteName, "remote", "r", "", "remote a usar")
+	cmd.Flags().StringVarP(&remoteName, "remote", "r", "", "remote to use")
 	return cmd
 }
 
@@ -92,7 +92,7 @@ func runFetch(ctx context.Context, targets []string, remoteName string) (*cache.
 	if err != nil {
 		return nil, err
 	}
-	infof("%d objetos descargados, %d ya en cache", res.Transferred, res.Skipped)
+	infof("downloaded %s, %d already in cache", plural(res.Transferred, "object", "objects"), res.Skipped)
 	return c, nil
 }
 
@@ -100,12 +100,12 @@ func newPullCmd() *cobra.Command {
 	var remoteName string
 	cmd := &cobra.Command{
 		Use:   "pull [target]...",
-		Short: "Descarga del remote y materializa el workspace (fetch + checkout)",
+		Short: "Download from the remote and materialize the workspace (fetch + checkout)",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runPull(cmd.Context(), args, remoteName)
 		},
 	}
-	cmd.Flags().StringVarP(&remoteName, "remote", "r", "", "remote a usar")
+	cmd.Flags().StringVarP(&remoteName, "remote", "r", "", "remote to use")
 	return cmd
 }
 
@@ -141,6 +141,6 @@ func runPull(ctx context.Context, targets []string, remoteName string) error {
 			return err
 		}
 	}
-	infof("workspace actualizado (%d salidas)", len(outs))
+	infof("updated workspace (%s)", plural(len(outs), "output", "outputs"))
 	return nil
 }

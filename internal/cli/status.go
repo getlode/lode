@@ -14,12 +14,12 @@ func newStatusCmd() *cobra.Command {
 	var jsonOut bool
 	cmd := &cobra.Command{
 		Use:   "status [target]...",
-		Short: "Reporta cambios sin modificar el repo",
+		Short: "Show what changed, without modifying the repository",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runStatus(args, jsonOut)
 		},
 	}
-	cmd.Flags().BoolVar(&jsonOut, "json", false, "salida estructurada en JSON")
+	cmd.Flags().BoolVar(&jsonOut, "json", false, "structured JSON output")
 	return cmd
 }
 

@@ -19,7 +19,7 @@ import (
 func newAddCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "add <target>...",
-		Short: "Trackea archivos o directorios (drop-in compatible con DVC)",
+		Short: "Track files or directories (drop-in compatible with DVC)",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runAdd(args)
@@ -89,7 +89,7 @@ func addTarget(c *cache.Cache, st *hashfile.State, target string) error {
 		}
 		// Safe-failure: reject if the file changed while we were hashing it.
 		if fi, err := os.Stat(target); err != nil || fi.Size() != size {
-			return fmt.Errorf("el archivo cambió durante el add; abortado")
+			return fmt.Errorf("the file changed during add; aborted")
 		}
 		if err := c.AddFile(target, sum); err != nil {
 			return err
