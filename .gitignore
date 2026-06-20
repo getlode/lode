@@ -1,0 +1,20 @@
+# Go
+*.exe
+*.test
+*.out
+vendor/
+/dvcgo
+/dist/
+
+# DVC test repos / cache
+.dvc/cache/
+.dvc/tmp/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+*.log
+.env*
