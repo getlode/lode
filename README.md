@@ -76,6 +76,23 @@ Already have a DVC repo? Skip `init` and point `lode` at it — same format, bot
 This is validated, not aspirational: the test suite runs against a real DVC 3.67.1
 install and a real S3-compatible server.
 
+## Benchmarks
+
+On a real public dataset — **Tiny-ImageNet, 100,200 files**, 16-core machine, DVC 3.67.1:
+
+| operation | DVC | lode | speedup |
+|-----------|----:|-----:|--------:|
+| `add` (cold) | 25.77s | 2.25s | **11.5×** |
+| `status` (no change) | 3.48s | 1.31s | **2.7×** |
+| `add` (1 file changed, of 100k) | 6.23s | 0.47s | **13.3×** |
+
+…and `dvc status` then reports *"up to date"* on the repo `lode` produced — drop-in, no
+migration. The last row is the structural win: change one file in a 100k dataset and DVC
+re-processes the directory; lode's state DB skips the rest. Full methodology, synthetic
+scaling curves, honest caveats (push/pull are network-bound and on par), and the
+documented DVC slowness this addresses: **[BENCHMARKS.md](BENCHMARKS.md)**. Reproduce
+with [`scripts/benchmark.sh`](scripts/benchmark.sh).
+
 ## How it works
 
 - **Parallel, bounded hashing** (errgroup capped at `NumCPU`) with a reused buffer pool.
