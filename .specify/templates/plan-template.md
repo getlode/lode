@@ -40,7 +40,19 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Verify against `.specify/memory/constitution.md` (v1.0.0). Each gate MUST pass or be
+justified in Complexity Tracking:
+
+- **I. DVC Byte-Compatibility**: Does any artifact dvcgo writes stay byte-identical to DVC 3.x?
+  Any intended divergence MUST be explicit, versioned, and opt-in.
+- **II. Oracle-Gated Format Changes**: Does format-affecting work land a byte-oracle test
+  (vs the real `dvc`) that is green before command work proceeds?
+- **III. Zero-CGO Single Binary**: Do all dependencies build with `CGO_ENABLED=0` and
+  cross-compile without a C toolchain?
+- **IV. Performance Is the Product**: Do hot paths parallelize and avoid per-file fsync /
+  per-file transactions, with no measurable regression (benchmark where relevant)?
+- **V. Coexistence Over Reinvention**: Does the change honor DVC's locks/conventions and
+  avoid silent changes to shared repo state?
 
 ## Project Structure
 

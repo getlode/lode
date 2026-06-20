@@ -32,7 +32,15 @@ Reimplementar en Go el núcleo de versionado de datos de DVC (Data Version Contr
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-La constitución del proyecto (`.specify/memory/constitution.md`) está sin ratificar (plantilla con placeholders, sin principios definidos). **No hay gates de constitución que evaluar.** Se aplican como guía las buenas prácticas de ingeniería del proyecto (CLAUDE.md): código limpio, SOLID/DRY/KISS, sin abstracciones prematuras, validar solo en bordes del sistema. No se detectan violaciones que requieran justificación en Complexity Tracking. **Re-evaluación post-Phase 1**: el diseño respeta estos principios (paquetes de responsabilidad única, sin abstracción prematura); sigue sin haber violaciones.
+Evaluado contra `.specify/memory/constitution.md` (v1.0.0, ratificada 2026-06-20):
+
+- **I. DVC Byte-Compatibility**: ✅ `.dvc`/`.dir`/cache/remote byte-idénticos, cubiertos por el gate oráculo contra DVC real.
+- **II. Oracle-Gated Format Changes**: ✅ La lógica de formato (`dvcfile`, `hashfile/tree`) está aislada y validada por `tests/oracle` antes de los comandos.
+- **III. Zero-CGO Single Binary**: ✅ Toda la cadena con `CGO_ENABLED=0`; cross-compile vía GoReleaser.
+- **IV. Performance Is the Product**: ✅ Hashing paralelo + state batcheado; ~13× vs DVC; sin fsync/transacción por archivo.
+- **V. Coexistence Over Reinvention**: ✅ Honra `.dvc/tmp/lock` (flock) y rwlock; interop bidireccional verificada.
+
+**Sin violaciones** que requieran justificación en Complexity Tracking. La constitución se ratificó después de implementar este feature; el feature cumple los cinco principios (de hecho los originó).
 
 ## Project Structure
 
