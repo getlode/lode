@@ -20,7 +20,9 @@ data-versioning core — your existing DVC repo, faster, with zero migration.
 
 Each is specced under [`specs/`](specs/):
 
-- **More remotes** — GCS, then Azure.
+- **More remotes** — native GCS, then Azure. (GCS *may* already work via its
+  S3-compatible endpoint — `lode remote modify <name> endpointurl https://storage.googleapis.com`
+  with HMAC keys — but this is **untested**; reports welcome. Native `gs://` auth is planned.)
 - **Pipelines / `repro`** — the larger piece; until then lode coexists with DVC for
   pipelines (DVC stays for `dvc.yaml`/`dvc repro`).
 
