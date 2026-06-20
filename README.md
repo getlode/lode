@@ -37,11 +37,19 @@ your repo stays a DVC repo.
 ## Install
 
 ```bash
-go install github.com/getlode/lode/cmd/lode@latest
-# or grab a binary from Releases, or: brew install getlode/tap/lode
+brew install getlode/tap/lode
+# or download a binary from the Releases page (no toolchain needed)
+# or, if you have Go:  go install github.com/getlode/lode/cmd/lode@latest
 ```
 
 Single static binary, no runtime, no dependencies. Linux / macOS / Windows, amd64 / arm64.
+
+> **New to DVC?** You don't need DVC or Python installed — lode is standalone. Run
+> `lode init` then `lode add <folder>` to start versioning a dataset, and `lode push`
+> to back it up to S3. Because lode uses DVC's on-disk format, DVC's
+> [docs and concepts](https://dvc.org/doc) apply directly if you want to go deeper.
+> For ML *pipelines* (`dvc repro`), keep using DVC — lode accelerates the data layer
+> and coexists with it.
 
 ## Usage
 
