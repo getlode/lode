@@ -1,73 +1,110 @@
 # lode
 
-Versionado de datos rápido en Go, **drop-in compatible con [DVC](https://dvc.org) 3.x**.
-Apuntá `lode` a tu repositorio DVC actual y obtené el mismo formato (mismos
-`.dvc`, mismo objeto `.dir`, mismo layout de cache y remote) con un binario único
-y hashing paralelo. En datasets grandes es ~10× más rápido que DVC de Python.
+**A fast, drop-in compatible reimplementation of [DVC](https://dvc.org)'s data-versioning core, in Go.**
 
-## Por qué
+[![CI](https://github.com/getlode/lode/actions/workflows/ci.yml/badge.svg)](https://github.com/getlode/lode/actions/workflows/ci.yml)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](LICENSE)
+[![Go 1.23+](https://img.shields.io/badge/Go-1.23%2B-00ADD8.svg)](go.mod)
 
-DVC es el estándar para versionar datasets y modelos de ML, pero su CLI sufre en
-repos grandes: el hashing es CPU-bound y está limitado por el runtime de Python.
-`lode` reimplementa el núcleo de versionado en Go: binario estático sin
-dependencias, hashing concurrente y un state DB que evita rehashear lo que no
-cambió. Y **coexiste con DVC**: ambos operan el mismo repo de forma intercambiable.
+Point `lode` at your existing DVC repository and get the same format — identical
+`.dvc` files, the same `.dir` objects, the same cache and remote layout — but as a
+single static binary with parallel hashing. On large datasets it is **~10× faster**
+than DVC-Python, and it coexists with DVC on the same repo: run either tool, in
+either order.
 
-## Instalación
+```console
+$ time dvc add big/      # 20,000 files
+real    0m5.79s
+
+$ time lode add big/     # same repo, same result, byte-identical metadata
+real    0m0.44s
+```
+
+## Why
+
+DVC is the standard for versioning datasets and ML models, but its CLI struggles on
+large repos: hashing is CPU-bound and throttled by the Python runtime. `lode`
+reimplements the data-versioning core in Go — a dependency-free binary, concurrent
+hashing, and a local state DB that skips re-hashing unchanged files. No migration:
+your repo stays a DVC repo.
+
+## Install
 
 ```bash
 go install github.com/getlode/lode/cmd/lode@latest
-# o descargá un binario de Releases / brew install getlode/tap/lode
+# or grab a binary from Releases, or: brew install getlode/tap/lode
 ```
 
-## Uso
+Single static binary, no runtime, no dependencies. Linux / macOS / Windows, amd64 / arm64.
+
+## Usage
 
 ```bash
-lode add data/            # trackea un directorio (o un archivo)
-lode status               # qué cambió, sin rehashear lo intacto
+lode add data/                 # track a directory (or a file)
+lode status                    # what changed — without re-hashing unchanged data
 lode remote add -d r s3://bucket/store
 lode remote modify r endpointurl https://nyc3.digitaloceanspaces.com
-lode push                 # sube al remote S3-compatible
-lode pull                 # fetch + checkout en un clon limpio
-lode checkout             # materializa el workspace desde el cache
-lode gc -f                # libera objetos no referenciados
+lode push                      # upload to an S3-compatible remote
+lode pull                      # fetch + checkout on a clean clone
+lode checkout                  # materialize the workspace from cache
+lode gc -f                     # reclaim unreferenced objects
 ```
 
-| Comando | Qué hace |
+| Command | What it does |
 |---|---|
-| `add` | Hashea (paralelo), cachea y escribe el `.dvc`; actualiza `.gitignore` |
-| `status` | Reporta cambios usando el state DB (sin rehashear lo intacto) |
-| `push` / `fetch` / `pull` | Sincroniza con un remote S3-compatible (S3, MinIO, R2, B2) |
-| `checkout` | Materializa el workspace (reflink → hardlink/symlink → copy) |
-| `gc` | Elimina objetos no referenciados del cache (y del remote con `-c`) |
+| `add` | Hash (in parallel), cache, write the `.dvc`, update `.gitignore` |
+| `status` | Report changes using the state DB (no re-hash of unchanged data); `--json` |
+| `push` / `fetch` / `pull` | Sync with an S3-compatible remote (AWS S3, MinIO, Cloudflare R2, Backblaze B2) |
+| `checkout` | Materialize the workspace (reflink → hardlink/symlink → copy) |
+| `gc` | Remove unreferenced objects from the cache (and remote with `-c`) |
 
-## Compatibilidad con DVC
+## DVC compatibility
 
-- Formato `.dvc` y objeto `.dir` **byte-idénticos** a DVC 3.x (validado por un
-  test-oráculo contra el `dvc` real).
-- Mismo layout content-addressed en cache y remote (`files/md5/<2>/<resto>`).
-- Interoperabilidad **bidireccional**: lo que sube `lode` lo baja DVC y viceversa.
-- Lectura del cache legacy 2.x (`<2>/<resto>`).
+- **Byte-identical** `.dvc` files and `.dir` objects to DVC 3.x — verified by a
+  byte-oracle test that compares `lode`'s output against the real `dvc` binary.
+- Same content-addressed layout in cache and remote (`files/md5/<2>/<rest>`).
+- **Bidirectional interop**: objects `lode` pushes are pulled by DVC and vice versa
+  (validated end-to-end against MinIO).
+- Reads the legacy DVC 2.x cache layout.
 
-### Fuera del alcance del MVP
+This is validated, not aspirational: the test suite runs against a real DVC 3.67.1
+install and a real S3-compatible server.
 
-Pipelines/`repro`, y backends de remote no-S3 (GCS, Azure, SSH).
+## How it works
 
-## Desarrollo
+- **Parallel, bounded hashing** (errgroup capped at `NumCPU`) with a reused buffer pool.
+- **State DB** (embedded, pure-Go) keyed by `(inode, mtime, size)` → hash, so `status`
+  and re-`add` skip files that didn't change.
+- **Atomic, batched writes**: no per-file fsync, no per-file DB transaction — the two
+  changes that turned an early 78 s run into 0.44 s.
+- **Zero cgo** end-to-end, so the binary cross-compiles to every target without a C toolchain.
+
+## Scope
+
+In scope today: the data-versioning core — `add`, `status`, `checkout`, `push`,
+`fetch`, `pull`, `gc` — over a local cache and S3-compatible remotes.
+
+Not yet (planned / feedback-driven): the pipelines / `repro` engine, and non-S3
+remotes (GCS, Azure, SSH).
+
+## Development
 
 ```bash
-make build           # binario (CGO_ENABLED=0)
-make test            # todos los tests
-make test-short      # omite la integración con S3
-make oracle          # gate de compatibilidad de bytes contra DVC real
-
-# Integración con S3 (MinIO) e interop con DVC real:
-MINIO_ENDPOINT=http://localhost:9000 MINIO_ACCESS_KEY=... MINIO_SECRET_KEY=... \
-  DVC_BIN=$(which dvc) LODE_BIN=$(pwd)/lode go test ./tests/...
+make build         # CGO_ENABLED=0 single binary
+make test-short    # unit + oracle, no external services
+make test          # full suite — needs MinIO and the real `dvc` binary
+make lint
 ```
 
-## Licencia
+The full integration/oracle suite expects a MinIO (`MINIO_ENDPOINT`, `MINIO_ACCESS_KEY`,
+`MINIO_SECRET_KEY`), the reference `dvc` (`DVC_BIN`), and the built binary (`LODE_BIN`).
+See `tests/` for details. Contributions: see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Dual: **AGPL-3.0** ([LICENSE](LICENSE)) + **licencia comercial** para uso sin las
-obligaciones de la AGPL ([COMMERCIAL.md](COMMERCIAL.md)). Las contribuciones
-requieren aceptar el CLA ([CONTRIBUTING.md](CONTRIBUTING.md)).
+## License
+
+Dual-licensed: **[AGPL-3.0](LICENSE)** for open-source use, plus a **commercial
+license** for use without the AGPL's obligations — see [COMMERCIAL.md](COMMERCIAL.md).
+Contributions require agreeing to the CLA ([CONTRIBUTING.md](CONTRIBUTING.md)).
+
+> `lode` is an independent project and is not affiliated with or endorsed by
+> Iterative, Inc. or the DVC project. "DVC" is used only to describe compatibility.
