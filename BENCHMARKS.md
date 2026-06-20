@@ -4,80 +4,87 @@
 CLI is used every day and where DVC's Python runtime hurts. Reproduce everything
 yourself with [`scripts/benchmark.sh`](scripts/benchmark.sh).
 
-> **Honest scope.** These numbers cover `add`/`status` on **many small files** — the
-> common ML-data case and the one DVC users complain about most (see *Why this matters*
-> below). `push`/`pull` are network-bound and roughly **on par** with DVC. Large
-> single-file throughput is hash-bound and the gap narrows. Numbers are single cold
-> runs on one machine — indicative, not a statistical study. Run the script and see.
+> **Honest scope.** These numbers cover `add`/`status`. `push`/`pull` are
+> network-bound and roughly **on par** with DVC. As files get larger the work
+> becomes hash-bound and the gap narrows (shown below). Numbers are **warm-cache**
+> (see Methodology).
+
+## Methodology
+
+Designed to survive scrutiny, not to flatter:
+
+- **N runs per cell** (default 5); we report the **median ± standard deviation** and
+  the speedup of the medians. Cells whose median sits in the timing noise floor are
+  flagged `(noise-floor)` rather than presented as a speedup.
+- **Execution order is alternated** every run (dvc-first / lode-first), so neither
+  tool systematically benefits from a page cache the other warmed. True cold
+  (`drop_caches`) needs root and is **not** assumed — results are **warm** and labeled
+  as such; the alternation removes the order bias.
+- **Two file-size regimes**: many-small files and few-large files (the CPU-bound
+  hashing case), so you can see where the advantage holds and where it narrows.
+- **Peak memory (RSS)** is reported per operation (GNU `/usr/bin/time`).
+- The **interop claim is encoded**: after `lode add`, the harness runs `dvc status`
+  and asserts the repo is *up to date* — i.e. DVC reads what lode produced. Every run
+  below reports `interop(lode->dvc): PASS`.
+
+Environment for the numbers below: 16-core x86_64, Linux, DVC 3.67.1, RUNS=5, warm
+cache with order alternated.
+
+## Synthetic (deterministic, runs anywhere)
+
+`scripts/benchmark.sh` with `REGIMES="50000:1024 16:67108864"`:
+
+| files × size | operation | DVC median±sd | lode median±sd | speedup | lode RSS |
+|---|---|--:|--:|--:|--:|
+| 50,000 × 1KB | `add` | 12.39s ±0.06 | 1.01s ±0.02 | **12.3×** | 104 MB |
+| 50,000 × 1KB | `status` | 1.91s ±0.01 | 0.59s ±0.01 | **3.2×** | 112 MB |
+| 50,000 × 1KB | `add` (1 changed) | 3.38s ±0.02 | 0.23s ±0.01 | **14.7×** | 57 MB |
+| 16 × 64MB (1 GB) | `add` | 1.17s ±0.12 | 0.23s ±0.00 | **5.1×** | 11 MB |
+| 16 × 64MB (1 GB) | `status` | 0.34s ±0.08 | 0.14s ±0.01 | **2.4×** | 11 MB |
+| 16 × 64MB (1 GB) | `add` (1 changed) | 0.69s ±0.08 | 0.10s ±0.03 | **6.9×** | 9 MB |
+
+The honest story across regimes: **~12× on many small files** (DVC's per-file Python
+overhead dominates), narrowing to **~5× on large files** (both tools become hash-bound,
+so the gap shrinks — exactly as expected). `status` is a steadier ~2.4–3.2× because both
+tools cache state. The `add (1 changed)` row is the structural win: change one file and
+DVC reprocesses the directory; lode's state DB skips the rest.
 
 ## Real dataset: Tiny-ImageNet (100,200 files)
 
 A real public dataset (`wget http://cs231n.stanford.edu/tiny-imagenet-200.zip`),
-`train/` split — 100,200 small JPEGs. 16-core machine, DVC 3.67.1, defaults on both.
+`train/` split, same rigorous method:
 
-| operation | DVC (Python) | lode (Go) | speedup |
-|-----------|-------------:|----------:|--------:|
-| `add` (cold, hashes everything) | 25.77s | 2.25s | **11.5×** |
-| `status` (no change) | 3.48s | 1.31s | **2.7×** |
-| `add` (1 file changed, of 100k) | 6.23s | 0.47s | **13.3×** |
+| operation | DVC median±sd | lode median±sd | speedup | lode RSS |
+|---|--:|--:|--:|--:|
+| `add` (cold) | 26.08s ±0.32 | 2.24s ±0.09 | **11.6×** | 153 MB |
+| `status` (no change) | 3.58s ±0.04 | 1.22s ±0.02 | **2.9×** | 152 MB |
+| `add` (1 file changed) | 6.31s ±0.10 | 0.48s ±0.03 | **13.1×** | 121 MB |
 
-And — the whole point — **DVC reads what lode produced**: after `lode init && lode add train`,
-`dvc status` reports *"Data and pipelines are up to date."* Same `.dvc`, same `.dir`
-objects, same cache layout. Drop-in, no migration.
-
-The **`add` after changing one file** row is the structural win: DVC re-processes the
-directory (6.23s) even though 99,999 files are untouched; lode's state DB skips them
-(0.47s). That is exactly the pain reported in DVC issues (below) — and it is not a
-constant-factor speedup, it is *not doing the work*.
-
-## Synthetic scaling (deterministic, runs anywhere)
-
-`scripts/benchmark.sh` with `SCALES="1000 10000 50000"` — deterministic generated
-datasets, so anyone gets comparable results.
-
-16-core machine, DVC 3.67.1, defaults on both. Single cold run per cell.
-
-| files | operation | DVC | lode | speedup |
-|------:|-----------|----:|-----:|--------:|
-| 1,000 | `add` (cold) | 0.92s | 0.06s | **15.3×** |
-| 1,000 | `status` (no change) | 0.43s | 0.03s | **14.3×** |
-| 1,000 | `add` (1 file changed) | 0.63s | 0.02s | **31.5×** |
-| 10,000 | `add` (cold) | 3.11s | 0.29s | **10.7×** |
-| 10,000 | `status` (no change) | 0.70s | 0.17s | **4.1×** |
-| 10,000 | `add` (1 file changed) | 1.16s | 0.06s | **19.3×** |
-| 50,000 | `add` (cold) | 14.94s | 1.25s | **12.0×** |
-| 50,000 | `status` (no change) | 2.20s | 0.66s | **3.3×** |
-| 50,000 | `add` (1 file changed) | 3.96s | 0.28s | **14.1×** |
-
-Consistent with the real dataset: `add` stays ~10–15× across scales, the incremental
-case 14–31×, and `status` 3–14× (both tools cache state, so the gap there is smaller
-but real).
+The real-dataset numbers match the synthetic many-small regime and barely move under
+the rigorous method (median of 5, order-alternated) — i.e. the speedup is real, not a
+page-cache artifact. At 100k files lode's resident memory is ~150 MB (it builds the file
+list in memory); that scales with file count and is the honest cost of the parallel walk.
 
 ## How lode is faster
 
 - **Parallel hashing** bounded to `NumCPU` (DVC is single-process Python, GIL-bound).
 - **State DB** keyed by `(inode, mtime, size)` → skip re-hashing unchanged files.
-- **No per-file fsync, no per-file DB transaction** — batched writes (the two fixes
-  that turned an early 78s run into sub-second).
+- **No per-file fsync, no per-file DB transaction** — batched writes.
 - **Single static Go binary**, no Python runtime overhead on startup or hashing.
 
 ## Why this matters (the pain is documented)
-
-DVC's slowness on large/many-file datasets is a long-standing, widely-reported issue:
 
 - [dvc#7607](https://github.com/iterative/dvc/issues/7607) — *"600k files… takes many hours with `dvc add`"* (most-upvoted perf issue).
 - [dvc#7681](https://github.com/iterative/dvc/issues/7681) — *"3M files… `dvc status` takes 20+ minutes to calculate hashes."*
 - [dvc#6977](https://github.com/iterative/dvc/issues/6977) — *"`dvc add` takes ~1 hour to re-compute md5… the large files are untouched."* (the incremental case lode eliminates)
 - On Hacker News, the Oxen.ai maintainer: *"we built Oxen because DVC was painfully slow"*; another dev: *"we've written our own (10×) faster version of dvc."*
 
-`lode` keeps your existing DVC repo and removes that pain on the daily path.
-
 ## Reproduce
 
 ```bash
 make build
-# synthetic scaling
-LODE=./lode DVC_BIN=$(which dvc) SCALES="1000 10000 50000" scripts/benchmark.sh
+# synthetic regimes (count:bytes), N runs each
+LODE=./lode DVC_BIN=$(which dvc) RUNS=5 REGIMES="50000:1024 16:67108864" scripts/benchmark.sh
 # a real dataset directory
-LODE=./lode DVC_BIN=$(which dvc) scripts/benchmark.sh /path/to/dataset
+LODE=./lode DVC_BIN=$(which dvc) RUNS=5 scripts/benchmark.sh /path/to/dataset-dir
 ```

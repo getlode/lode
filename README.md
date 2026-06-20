@@ -80,20 +80,22 @@ install and a real S3-compatible server.
 
 ## Benchmarks
 
-On a real public dataset — **Tiny-ImageNet, 100,200 files**, 16-core machine, DVC 3.67.1:
+On a real public dataset — **Tiny-ImageNet, 100,200 files**, 16-core, DVC 3.67.1,
+median of 5 runs (execution order alternated to remove page-cache bias):
 
 | operation | DVC | lode | speedup |
 |-----------|----:|-----:|--------:|
-| `add` (cold) | 25.77s | 2.25s | **11.5×** |
-| `status` (no change) | 3.48s | 1.31s | **2.7×** |
-| `add` (1 file changed, of 100k) | 6.23s | 0.47s | **13.3×** |
+| `add` (cold) | 26.08s | 2.24s | **11.6×** |
+| `status` (no change) | 3.58s | 1.22s | **2.9×** |
+| `add` (1 file changed, of 100k) | 6.31s | 0.48s | **13.1×** |
 
 …and `dvc status` then reports *"up to date"* on the repo `lode` produced — drop-in, no
-migration. The last row is the structural win: change one file in a 100k dataset and DVC
-re-processes the directory; lode's state DB skips the rest. Full methodology, synthetic
-scaling curves, honest caveats (push/pull are network-bound and on par), and the
-documented DVC slowness this addresses: **[BENCHMARKS.md](BENCHMARKS.md)**. Reproduce
-with [`scripts/benchmark.sh`](scripts/benchmark.sh).
+migration (the harness asserts this every run). The last row is the structural win:
+change one file in a 100k dataset and DVC re-processes the directory; lode's state DB
+skips the rest. The gap is ~12× on many small files and **narrows to ~5× on large
+files** (both become hash-bound — shown honestly). Full methodology (median±σ, memory,
+file-size regimes) and the documented DVC slowness this addresses:
+**[BENCHMARKS.md](BENCHMARKS.md)**. Reproduce with [`scripts/benchmark.sh`](scripts/benchmark.sh).
 
 ## How it works
 
