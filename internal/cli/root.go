@@ -1,0 +1,68 @@
+// Package cli wires the dvcgo command-line interface.
+package cli
+
+import (
+	"fmt"
+	"os"
+	"runtime"
+
+	"github.com/jtorchia/dvcgo/internal/repo"
+	"github.com/spf13/cobra"
+)
+
+var version = "dev"
+
+// SetVersion is called from main to inject the build version.
+func SetVersion(v string) { version = v }
+
+func newRootCmd() *cobra.Command {
+	root := &cobra.Command{
+		Use:           "dvcgo",
+		Short:         "Versionado de datos rápido, drop-in compatible con DVC",
+		SilenceUsage:  true,
+		SilenceErrors: true,
+		Version:       version,
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			if flagChdir != "" {
+				if err := os.Chdir(flagChdir); err != nil {
+					return err
+				}
+			}
+			return nil
+		},
+	}
+	pf := root.PersistentFlags()
+	pf.BoolVarP(&flagVerbose, "verbose", "v", false, "salida detallada")
+	pf.BoolVarP(&flagQuiet, "quiet", "q", false, "solo errores")
+	pf.IntVarP(&flagJobs, "jobs", "j", runtime.NumCPU(), "concurrencia")
+	pf.StringVar(&flagChdir, "cd", "", "ejecutar como si el cwd fuera este directorio")
+
+	root.AddCommand(
+		newAddCmd(),
+		newStatusCmd(),
+		newPushCmd(),
+		newFetchCmd(),
+		newPullCmd(),
+		newCheckoutCmd(),
+		newGCCmd(),
+		newRemoteCmd(),
+	)
+	return root
+}
+
+// Execute runs the root command.
+func Execute() {
+	if err := newRootCmd().Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, "Error:", err)
+		os.Exit(1)
+	}
+}
+
+// findRepo locates the repository from the current working directory.
+func findRepo() (*repo.Repo, error) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+	return repo.Find(cwd)
+}
