@@ -18,8 +18,9 @@ By submitting a pull request you agree that:
    commercial option while staying open source.
 3. Your contribution is and remains available under the AGPL-3.0.
 
-The first time you open a PR, a bot/maintainer will ask you to confirm the CLA
-by commenting your agreement. You only need to do this once.
+The first time you open a PR, add a comment stating: *"I have read the CLA and I agree
+to it."* A maintainer will acknowledge it. You only need to do this once. (This is a
+manual step today — no CLA bot is wired yet; honesty over theater.)
 
 > Rationale: you cannot sell or relicense code you do not have the rights to.
 > The CLA is what makes the open-core model legally possible.

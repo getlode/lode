@@ -20,6 +20,12 @@ $ time lode add big/     # same repo, same result, byte-identical metadata
 real    0m0.44s
 ```
 
+> **Zero lock-in — this is the point.** lode never invents a format; your repo *stays*
+> a DVC repo. Trying it is risk-free: run `lode` on your real repo, and if you ever want
+> out, just uninstall it and keep using `dvc` on the exact same files. `lode verify` (and
+> `dvc status`) prove the objects are byte-identical. lode **accelerates the daily hot
+> path and coexists with DVC** — it is not a new system to migrate to.
+
 ## Why
 
 DVC is the standard for versioning datasets and ML models, but its CLI struggles on
@@ -127,11 +133,28 @@ The full integration/oracle suite expects a MinIO (`MINIO_ENDPOINT`, `MINIO_ACCE
 `MINIO_SECRET_KEY`), the reference `dvc` (`DVC_BIN`), and the built binary (`LODE_BIN`).
 See `tests/` for details. Contributions: see [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Project status
+
+lode is young and currently maintained by one person. The honest reason that's
+low-risk to depend on: **lode does not own your data or its format.** Your repo is a
+standard DVC repo — if lode stalls or you walk away, uninstall it and keep using `dvc`,
+no migration, no export. The byte-compatibility that makes that true is enforced by a
+test that runs against the real `dvc` on every CI build. Roadmap and how to help:
+[ROADMAP.md](ROADMAP.md), [CONTRIBUTING.md](CONTRIBUTING.md), [ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
 ## License
 
 Dual-licensed: **[AGPL-3.0](LICENSE)** for open-source use, plus a **commercial
 license** for use without the AGPL's obligations — see [COMMERCIAL.md](COMMERCIAL.md).
-Contributions require agreeing to the CLA ([CONTRIBUTING.md](CONTRIBUTING.md)).
+
+> **Using lode internally as a CLI under the AGPL needs no commercial license.** If you
+> only run the binary (and comply with the AGPL), you're done — the commercial license is
+> for embedding it in a closed-source product or hosted service. See [COMMERCIAL.md](COMMERCIAL.md).
+
+Contributions are accepted under a CLA — see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+> `lode` is an independent project and is not affiliated with or endorsed by
+> Iterative, Inc. or the DVC project. "DVC" is used only to describe compatibility.
 
 > `lode` is an independent project and is not affiliated with or endorsed by
 > Iterative, Inc. or the DVC project. "DVC" is used only to describe compatibility.

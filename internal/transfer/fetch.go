@@ -103,7 +103,7 @@ func downloadVerify(ctx context.Context, store Store, c *cache.Cache, oid string
 	// For a .dir object the expected content hash is the oid without its suffix.
 	want := strings.TrimSuffix(oid, ".dir")
 	if got != want {
-		return fmt.Errorf("objeto corrupto %s: hash %s no coincide", oid, got)
+		return fmt.Errorf("corrupted object %s: hash %s does not match", oid, got)
 	}
 	return c.Adopt(tmpName, oid)
 }
