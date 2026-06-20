@@ -1,18 +1,19 @@
 <!-- SPECKIT START -->
-## Active Plan: 001-dvc-go
+## Proyecto: lode (github.com/getlode/lode)
 
-Reimplementación en Go del núcleo de versionado de datos de DVC (binario único,
-drop-in compatible con DVC 3.x). Plan: `specs/001-dvc-go/plan.md`.
+Reescritura en Go del núcleo de versionado de DVC. Binario `lode`, drop-in
+compatible con DVC 3.x. Go 1.23+ (`CGO_ENABLED=0`). Stack: cobra, **minio-go**
+(remotes S3-compatible), bbolt (state), gofrs/flock (lock), x/sys/unix (reflink).
 
-- **Stack**: Go 1.23+ (`CGO_ENABLED=0`), cobra (CLI), aws-sdk-go-v2 +
-  feature/s3/transfermanager (remotes S3-compatible), errgroup+crypto/md5+sync.Pool
-  (hashing), bbolt (state DB), gofrs/flock (lock), x/sys/unix (reflink FICLONE),
-  GoReleaser (distribución).
-- **MVP**: add, status, checkout, push, pull, fetch, gc. Cache local + remotes
-  S3-compatible (S3/MinIO/R2/B2). Pipelines/repro y backends no-S3 fuera del MVP.
-- **Invariante**: compatibilidad byte-a-byte con DVC (`.dvc`, objeto `.dir`, layout
-  `files/md5/...`) prevalece sobre mejoras de diseño. Riesgo #1: serialización exacta
-  del `.dir` (separadores `", "`/`": "`, escape ASCII, sort por relpath) — cubierto
-  por test-oráculo contra DVC real.
-- Detalles: `specs/001-dvc-go/{research,data-model,quickstart}.md`, `contracts/cli.md`.
+- **001-dvc-go** — ✅ implementado: add, status, checkout, push, pull, fetch, gc.
+- **Invariante (Constitución v1.0.0, Principio I)**: byte-compatibilidad con DVC
+  (`.dvc`, objeto `.dir`, layout `files/md5/...`, estructura de `init`) prevalece
+  sobre mejoras de diseño. Todo cambio de formato pasa por test-oráculo vs `dvc` real.
+
+## Active Plan: 002-init-onboarding
+
+`lode init` (byte-compat con `dvc init`, modos scm/no-scm) + `lode doctor` +
+errores que guían → uso standalone sin Python. Plan: `specs/002-init-onboarding/plan.md`.
+Reutiliza la infra del 001; sin deps nuevas; shell-out a `git` solo en modo scm.
+Detalles: `specs/002-init-onboarding/{research,data-model,quickstart}.md`, `contracts/cli.md`.
 <!-- SPECKIT END -->
