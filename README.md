@@ -190,6 +190,3 @@ with `git commit -s`) — no CLA, no copyright assignment. See [CONTRIBUTING.md]
 
 > `lode` is an independent project and is not affiliated with or endorsed by
 > Iterative, Inc. or the DVC project. "DVC" is used only to describe compatibility.
-
-> `lode` is an independent project and is not affiliated with or endorsed by
-> Iterative, Inc. or the DVC project. "DVC" is used only to describe compatibility.
