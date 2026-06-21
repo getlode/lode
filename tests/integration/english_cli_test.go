@@ -18,7 +18,7 @@ var spanishMarkers = []string{
 	"archivo", "remoto", "objetos", "salida", "materializa", "subidos",
 	"fallidos", "agregado", "eliminar", "configurado", "desconocida",
 	"continuar", "cancelado", "directorio", "manifiesto", "versionado",
-	"reporta", "gestiona", "trackea", "presentes",
+	"reporta", "gestiona", "trackea", "presentes", //nolint:misspell
 }
 
 func assertEnglish(t *testing.T, where, out string) {
