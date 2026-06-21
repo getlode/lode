@@ -49,7 +49,7 @@ func runAdd(targets []string) error {
 
 	st := openState(r)
 	if st != nil {
-		defer st.Close()
+		defer func() { _ = st.Close() }()
 	}
 
 	c := cache.New(r.CacheDir())

@@ -47,16 +47,20 @@ func TestVerify_Corrupted(t *testing.T) {
 	dir := stageVerifyRepo(t, bin)
 	// Corrupt one non-.dir cache object.
 	var obj string
-	filepath.WalkDir(filepath.Join(dir, ".dvc", "cache", "files"), func(p string, d os.DirEntry, err error) error {
+	if err := filepath.WalkDir(filepath.Join(dir, ".dvc", "cache", "files"), func(p string, d os.DirEntry, err error) error {
 		if err == nil && !d.IsDir() && !strings.HasSuffix(p, ".dir") && obj == "" {
 			obj = p
 		}
 		return nil
-	})
+	}); err != nil {
+		t.Fatal(err)
+	}
 	if obj == "" {
 		t.Fatal("no cache object found")
 	}
-	os.Chmod(obj, 0o644)
+	if err := os.Chmod(obj, 0o644); err != nil {
+		t.Fatal(err)
+	}
 	if err := os.WriteFile(obj, []byte("CORRUPTED"), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -73,14 +77,20 @@ func TestVerify_Missing(t *testing.T) {
 	bin := lodeBin(t)
 	dir := stageVerifyRepo(t, bin)
 	var obj string
-	filepath.WalkDir(filepath.Join(dir, ".dvc", "cache", "files"), func(p string, d os.DirEntry, err error) error {
+	if err := filepath.WalkDir(filepath.Join(dir, ".dvc", "cache", "files"), func(p string, d os.DirEntry, err error) error {
 		if err == nil && !d.IsDir() && !strings.HasSuffix(p, ".dir") && obj == "" {
 			obj = p
 		}
 		return nil
-	})
-	os.Chmod(obj, 0o644)
-	os.Remove(obj)
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(obj, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Remove(obj); err != nil {
+		t.Fatal(err)
+	}
 	out, failed := runForOutput(t, dir, bin, "verify")
 	if !failed {
 		t.Fatalf("missing object should fail verify, got:\n%s", out)
@@ -103,8 +113,12 @@ func TestVerify_DVCRepo(t *testing.T) {
 	if err := os.MkdirAll(filepath.Join(dir, "data"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	os.WriteFile(filepath.Join(dir, "data", "a"), []byte("alpha"), 0o644)
-	os.WriteFile(filepath.Join(dir, "data", "b"), []byte("beta"), 0o644)
+	if err := os.WriteFile(filepath.Join(dir, "data", "a"), []byte("alpha"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "data", "b"), []byte("beta"), 0o644); err != nil {
+		t.Fatal(err)
+	}
 	runToolEnv(t, dir, dvc, []string{"DVC_NO_ANALYTICS=1"}, "add", "data")
 
 	out, failed := runForOutput(t, dir, bin, "verify")

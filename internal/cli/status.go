@@ -40,7 +40,7 @@ func runStatus(targets []string, jsonOut bool) error {
 	}
 	st := openState(r)
 	if st != nil {
-		defer st.Close()
+		defer func() { _ = st.Close() }()
 	}
 
 	c := cache.New(r.CacheDir())

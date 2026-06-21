@@ -32,7 +32,7 @@ func HashFile(path string) (md5sum string, size int64, err error) {
 	if err != nil {
 		return "", 0, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	bp := bufPool.Get().(*[]byte)
 	defer bufPool.Put(bp)

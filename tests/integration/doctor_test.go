@@ -94,7 +94,7 @@ func TestDoctor_CacheUnwritable(t *testing.T) {
 	if err := os.Chmod(dvcDir, 0o555); err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chmod(dvcDir, 0o755) // restore so t.TempDir cleanup works
+	defer func() { _ = os.Chmod(dvcDir, 0o755) }() // restore so t.TempDir cleanup works
 
 	out, failed := runForOutput(t, dir, bin, "doctor")
 	if !failed {

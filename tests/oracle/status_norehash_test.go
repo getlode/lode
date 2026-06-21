@@ -27,7 +27,7 @@ func TestNoRehash(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer st.Close()
+	defer func() { _ = st.Close() }()
 
 	const sentinel = "deadbeefdeadbeefdeadbeefdeadbeef"
 	if err := st.Put(path, sentinel, 16); err != nil {

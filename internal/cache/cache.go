@@ -127,7 +127,7 @@ func (c *Cache) AddFile(src, oid string) error {
 	if err != nil {
 		return err
 	}
-	defer in.Close()
+	defer func() { _ = in.Close() }()
 	return atomicWrite(c.ObjectPath(oid), func(w io.Writer) error {
 		_, err := io.Copy(w, in)
 		return err
@@ -146,10 +146,10 @@ func atomicWrite(dst string, write func(io.Writer) error) error {
 		return err
 	}
 	tmpName := tmp.Name()
-	defer os.Remove(tmpName) // no-op once renamed
+	defer func() { _ = os.Remove(tmpName) }() // no-op once renamed
 
 	if err := write(tmp); err != nil {
-		tmp.Close()
+		_ = tmp.Close()
 		return err
 	}
 	// No per-object fsync: rename gives atomic visibility, and fsyncing every

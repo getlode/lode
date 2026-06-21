@@ -126,9 +126,9 @@ func TestRoundTrip(t *testing.T) {
 	}
 
 	// Simulate a clean clone: wipe cache and workspace data, keep nothing local.
-	os.RemoveAll(filepath.Join(root, ".dvc", "cache"))
-	os.RemoveAll(filepath.Join(root, "data"))
-	os.Remove(filepath.Join(root, "f.bin"))
+	_ = os.RemoveAll(filepath.Join(root, ".dvc", "cache"))
+	_ = os.RemoveAll(filepath.Join(root, "data"))
+	_ = os.Remove(filepath.Join(root, "f.bin"))
 
 	c2 := cache.New(filepath.Join(root, ".dvc", "cache"))
 	if _, err := transfer.Fetch(ctx, store, c2, fitems, 8); err != nil {

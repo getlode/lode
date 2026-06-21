@@ -34,7 +34,7 @@ func AddToGitignore(target string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	var b strings.Builder
 	if len(lines) > 0 && !trailingNewline {

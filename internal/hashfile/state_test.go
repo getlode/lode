@@ -16,7 +16,7 @@ func TestState_ForceRehashForcesMiss(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer st.Close()
+	defer func() { _ = st.Close() }()
 
 	f := filepath.Join(dir, "a.bin")
 	if err := os.WriteFile(f, []byte("hello"), 0o644); err != nil {
@@ -43,7 +43,7 @@ func TestState_DetectsSizeAndContentChange(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer st.Close()
+	defer func() { _ = st.Close() }()
 
 	f := filepath.Join(dir, "a.bin")
 	if err := os.WriteFile(f, []byte("hello"), 0o644); err != nil {

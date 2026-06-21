@@ -19,7 +19,7 @@ func reflinkFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer s.Close()
+	defer func() { _ = s.Close() }()
 
 	_ = os.Remove(dst)
 	d, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, fileMode)
@@ -27,8 +27,8 @@ func reflinkFile(src, dst string) error {
 		return err
 	}
 	if err := unix.IoctlFileClone(int(d.Fd()), int(s.Fd())); err != nil {
-		d.Close()
-		os.Remove(dst)
+		_ = d.Close()
+		_ = os.Remove(dst)
 		return err
 	}
 	return d.Close()

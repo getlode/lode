@@ -54,7 +54,7 @@ func infof(format string, args ...any) {
 	if flagQuiet {
 		return
 	}
-	fmt.Fprintf(os.Stdout, format+"\n", args...)
+	_, _ = fmt.Fprintf(os.Stdout, format+"\n", args...)
 }
 
 // printJSON writes v as indented JSON to stdout.
