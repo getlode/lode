@@ -41,6 +41,14 @@ func newRemoteCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remote",
 		Short: "Manage remotes in .dvc/config",
+		Long: "Manage remotes in .dvc/config.\n\n" +
+			"S3 credential resolution order:\n" +
+			"  1. Explicit remote config: access_key_id, secret_access_key, session_token\n" +
+			"  2. AWS environment variables\n" +
+			"  3. Shared AWS credentials file, honoring remote profile or AWS_PROFILE\n" +
+			"  4. IAM role credentials from the runtime environment\n\n" +
+			"Prefer environment variables, shared credentials, or IAM roles over storing\n" +
+			"static keys in .dvc/config.",
 	}
 	cmd.AddCommand(newRemoteAddCmd(), newRemoteModifyCmd())
 	return cmd
@@ -74,7 +82,11 @@ func newRemoteModifyCmd() *cobra.Command {
 		Short: "Modify a remote option (endpointurl, region, access_key_id, ...)",
 		Long: "Modify a remote option. Omit [value] to read it from stdin — recommended\n" +
 			"for secrets so they never appear in argv (ps), shell history, or logs.\n" +
-			"Example: printf '%s' \"$SECRET\" | lode remote modify r secret_access_key",
+			"Example: printf '%s' \"$SECRET\" | lode remote modify r secret_access_key\n\n" +
+			"S3 credentials resolve in this order: explicit remote config, AWS\n" +
+			"environment variables, shared AWS credentials file, then IAM role\n" +
+			"credentials. Prefer env, shared credentials, or IAM roles over storing\n" +
+			"static keys in .dvc/config.",
 		Args: cobra.RangeArgs(2, 3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			r, err := requireRepo()

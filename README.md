@@ -107,6 +107,18 @@ Already have a DVC repo? Skip `init` and point `lode` at it — same format, bot
 | `verify` | Re-hash cached objects and check they match their recorded hash — proves integrity and, on a DVC repo, that lode computes the same hashes |
 | `doctor` | Diagnose repo, cache, remotes, format and DVC coexistence; `--json`, CI-friendly exit codes |
 
+### S3 remote credentials
+
+For S3-compatible remotes, credentials resolve in this order:
+
+1. Explicit remote config in `.dvc/config`: `access_key_id`, `secret_access_key`, `session_token`
+2. AWS environment variables
+3. Shared AWS credentials file, honoring the remote `profile` option or `AWS_PROFILE`
+4. IAM role credentials from the runtime environment
+
+Prefer environment variables, the shared AWS credentials file, or IAM roles over
+storing static keys in `.dvc/config`, because `.dvc/config` is plain text.
+
 ## DVC compatibility
 
 - **Byte-identical** `.dvc` files and `.dir` objects to DVC 3.x — verified by a
