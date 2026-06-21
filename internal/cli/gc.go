@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/getlode/lode/internal/cache"
@@ -24,22 +25,32 @@ func newGCCmd() *cobra.Command {
 		force      bool
 		cloud      bool
 		remoteName string
+		jsonOut    bool
 	)
 	cmd := &cobra.Command{
 		Use:   "gc",
 		Short: "Remove unreferenced objects from the cache (and the remote with -c)",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runGC(cmd.Context(), force, cloud, remoteName)
+			return runGC(cmd.Context(), force, cloud, remoteName, jsonOut)
 		},
 	}
 	cmd.Flags().BoolVarP(&force, "force", "f", false, "delete without asking for confirmation")
 	cmd.Flags().BoolVarP(&cloud, "cloud", "c", false, "also clean the remote")
 	cmd.Flags().StringVarP(&remoteName, "remote", "r", "", "remote to use with -c")
+	cmd.Flags().BoolVar(&jsonOut, "json", false, "structured JSON output")
 	cmd.Flags().BoolP("workspace", "w", true, "take references from the workspace")
 	return cmd
 }
 
-func runGC(ctx context.Context, force, cloud bool, remoteName string) error {
+type gcJSONResult struct {
+	Objects    []string `json:"objects"`
+	Count      int      `json:"count"`
+	Bytes      int64    `json:"bytes"`
+	HumanBytes string   `json:"humanBytes"`
+	Removed    bool     `json:"removed"`
+}
+
+func runGC(ctx context.Context, force, cloud bool, remoteName string, jsonOut bool) error {
 	r, err := requireRepo()
 	if err != nil {
 		return err
@@ -68,13 +79,30 @@ func runGC(ctx context.Context, force, cloud bool, remoteName string) error {
 			freed += c.Size(oid)
 		}
 	}
+	sort.Strings(unreferenced)
+
+	result := gcJSONResult{
+		Objects:    unreferenced,
+		Count:      len(unreferenced),
+		Bytes:      freed,
+		HumanBytes: humanBytes(freed),
+	}
 
 	if len(unreferenced) == 0 {
+		if jsonOut {
+			return printJSON(result)
+		}
 		infof("No unreferenced objects to remove.")
 		return nil
 	}
 
-	infof("Will remove %s from the cache (%s).", plural(len(unreferenced), "object", "objects"), humanBytes(freed))
+	if jsonOut && !force {
+		return printJSON(result)
+	}
+
+	if !jsonOut {
+		infof("Will remove %s from the cache (%s).", plural(len(unreferenced), "object", "objects"), humanBytes(freed))
+	}
 	if !force && !confirm() {
 		infof("Cancelled.")
 		return nil
@@ -85,7 +113,10 @@ func runGC(ctx context.Context, force, cloud bool, remoteName string) error {
 			return err
 		}
 	}
-	infof("Freed %s from the local cache.", humanBytes(freed))
+	result.Removed = true
+	if !jsonOut {
+		infof("Freed %s from the local cache.", humanBytes(freed))
+	}
 
 	if cloud {
 		store, err := openStore(r, remoteName)
@@ -105,7 +136,12 @@ func runGC(ctx context.Context, force, cloud bool, remoteName string) error {
 				n++
 			}
 		}
-		infof("Removed %s from the remote.", plural(n, "unreferenced object", "unreferenced objects"))
+		if !jsonOut {
+			infof("Removed %s from the remote.", plural(n, "unreferenced object", "unreferenced objects"))
+		}
+	}
+	if jsonOut {
+		return printJSON(result)
 	}
 	return nil
 }

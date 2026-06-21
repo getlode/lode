@@ -6,6 +6,7 @@ package integration
 
 import (
 	"bytes"
+	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -56,6 +57,67 @@ func TestGC_SafetyAndRestorability(t *testing.T) {
 	}
 	runBin(t, root, bin, "checkout")
 	assertContent(t, filepath.Join(root, "keep.bin"), "keep-me")
+}
+
+func TestGC_JSONPlanAndForcedRemoval(t *testing.T) {
+	bin := os.Getenv("LODE_BIN")
+	if bin == "" {
+		t.Skip("LODE_BIN not set; skipping the gc binary test")
+	}
+
+	root := t.TempDir()
+	if _, err := repo.Init(root); err != nil {
+		t.Fatal(err)
+	}
+
+	c := cache.New(filepath.Join(root, ".dvc", "cache"))
+	junk := "deadbeefdeadbeefdeadbeefdeadbeef"
+	if err := c.AddBytes([]byte("junk-data"), junk); err != nil {
+		t.Fatal(err)
+	}
+
+	plan := runGCJSON(t, root, bin, "gc", "--json")
+	if plan.Count != 1 || plan.Bytes != int64(len("junk-data")) || plan.Removed {
+		t.Fatalf("unexpected gc json plan: %+v", plan)
+	}
+	if len(plan.Objects) != 1 || plan.Objects[0] != junk {
+		t.Fatalf("unexpected gc json objects: %+v", plan.Objects)
+	}
+	if !c.Has(junk) {
+		t.Fatal("gc --json should not remove objects without --force")
+	}
+
+	removed := runGCJSON(t, root, bin, "gc", "-f", "--json")
+	if removed.Count != 1 || !removed.Removed {
+		t.Fatalf("unexpected forced gc json result: %+v", removed)
+	}
+	if c.Has(junk) {
+		t.Fatal("gc -f --json did not remove the unreferenced object")
+	}
+}
+
+type gcJSONResult struct {
+	Objects []string `json:"objects"`
+	Count   int      `json:"count"`
+	Bytes   int64    `json:"bytes"`
+	Removed bool     `json:"removed"`
+}
+
+func runGCJSON(t *testing.T, dir, bin string, args ...string) gcJSONResult {
+	t.Helper()
+	cmd := exec.Command(bin, args...)
+	cmd.Dir = dir
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	out, err := cmd.Output()
+	if err != nil {
+		t.Fatalf("lode %v: %v\n%s", args, err, stderr.String())
+	}
+	var result gcJSONResult
+	if err := json.Unmarshal(out, &result); err != nil {
+		t.Fatalf("gc json output did not decode: %v\n%s", err, out)
+	}
+	return result
 }
 
 func runBin(t *testing.T, dir, bin string, args ...string) {
