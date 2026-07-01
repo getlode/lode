@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/gofrs/flock v0.13.0
-	github.com/minio/minio-go/v7 v7.2.0
+	github.com/minio/minio-go/v7 v7.2.1
 	github.com/spf13/cobra v1.10.2
 	go.etcd.io/bbolt v1.3.11
 	golang.org/x/sync v0.21.0
