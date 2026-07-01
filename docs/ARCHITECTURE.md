@@ -28,9 +28,8 @@ real `dvc` and compares bytes) green. See [`.specify/memory/constitution.md`](..
 The state DB `(inode, mtime, size) -> md5` is an **optimization, never a source of
 truth**. It can produce a false "up to date" only if a file's content changes while
 all three keys stay identical (e.g. NFS quirks, restored backups that reset mtimes,
-recycled inodes). For those cases `--rehash` (and a corrupt/unreadable state DB)
-degrade to a full re-hash — the always-correct path. lode must never report "no
-change" for a file that changed.
+recycled inodes). For those cases, use `--rehash` to force the always-correct full
+rehash path. A corrupt or unreadable state DB also degrades to a full rehash.
 
 ## Where things live
 

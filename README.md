@@ -6,22 +6,24 @@
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](LICENSE)
 [![Go 1.25+](https://img.shields.io/badge/Go-1.25%2B-00ADD8.svg)](go.mod)
 
-`lode` is a DVC-compatible data-versioning core in Go. Point it at an existing DVC
-repo and it writes the same `.dvc` files, `.dir` objects, local cache layout, and
-S3-compatible remote layout as DVC. If you stop using it, nothing is trapped in a new
-format: uninstall `lode` and keep using `dvc` on the same files.
+`lode` is a DVC-compatible accelerator for the data-versioning hot path in Go.
+Point it at an existing DVC repo and, for the supported commands, it writes the same
+`.dvc` pointer files, `.dir` objects, local cache layout, and S3-compatible remote
+object paths that DVC expects. If you stop using it, nothing is trapped in a new
+format: keep using `dvc` on the same repository.
 
 ```console
 $ time dvc add big/      # 20,000 files
 real    0m5.79s
 
-$ time lode add big/     # same repo, byte-identical DVC metadata
+$ time lode add big/     # same repo, DVC-compatible add output
 real    0m0.44s
 ```
 
 On a Tiny-ImageNet benchmark with 100,200 files, `lode add` is **12.4x faster** and
 incremental `add` after changing one file is **13.2x faster** than DVC 3.67.1. The
-benchmark harness verifies that `dvc status` accepts the repo produced by `lode`.
+benchmark harness verifies that `dvc status` accepts the `dvc add`-style outputs
+produced by `lode`.
 
 ## Try it safely on a DVC repo
 
@@ -36,9 +38,10 @@ lode verify
 dvc status
 ```
 
-Nothing migrates. `lode` only writes standard DVC files and cache objects. The safe
-rollback is deleting the `lode` binary and continuing with DVC. For a more careful
-copy-based trial, see [Try without risk](docs/try-without-risk.md).
+Nothing migrates. `lode` writes standard DVC files and cache objects for the commands
+it supports. There is no format lock-in; if you do not want the files produced during
+a trial, review or revert the `.dvc`/`.gitignore` changes with Git and keep using DVC.
+For a more careful copy-based trial, see [Try without risk](docs/try-without-risk.md).
 
 ## Current scope
 
@@ -46,7 +49,7 @@ copy-based trial, see [Try without risk](docs/try-without-risk.md).
 |---|---|
 | `init`, `add`, `status`, `checkout`, `push`, `fetch`, `pull`, `gc`, `verify`, `doctor` | `dvc repro` / pipelines |
 | Existing DVC 3.x repos and legacy DVC 2.x cache reads | Native `gs://`, Azure, SSH remotes |
-| S3-compatible remotes: AWS S3, MinIO, Cloudflare R2, Backblaze B2 | Replacing every DVC command |
+| S3-compatible remote implementation; tested directly with MinIO | Replacing every DVC command |
 
 See the [compatibility matrix](docs/compatibility.md) for the tested surface and known limits.
 
@@ -62,11 +65,11 @@ native [GCS](https://github.com/getlode/lode/issues/24),
 
 ## Why
 
-DVC is the standard for versioning datasets and ML models, but its CLI struggles on
-large repos: hashing is CPU-bound and throttled by the Python runtime. `lode`
-reimplements the data-versioning core in Go — a dependency-free binary, concurrent
-hashing, and a local state DB that skips re-hashing unchanged files. No migration:
-your repo stays a DVC repo.
+DVC is the standard for versioning datasets and ML models, but `dvc add` and
+`dvc status` can have high per-file overhead on large repos, especially many-small-file
+datasets. `lode` reimplements that data-versioning hot path in Go, with concurrent
+hashing, batched writes, and a local state DB that skips re-hashing unchanged files.
+No migration: your repo stays a DVC repo.
 
 ## Install
 
@@ -76,7 +79,7 @@ brew install getlode/tap/lode
 # or, if you have Go:  go install github.com/getlode/lode/cmd/lode@latest
 ```
 
-Single static binary, no runtime, no dependencies. Linux / macOS / Windows, amd64 / arm64.
+Single self-contained binary, no Python runtime. Linux / macOS / Windows, amd64 / arm64.
 
 > **New to DVC?** You don't need DVC or Python installed — lode is standalone. Run
 > `lode init` then `lode add <folder>` to start versioning a dataset, and `lode push`
@@ -128,14 +131,14 @@ lode verify                    # check integrity + prove DVC compatibility on yo
 lode doctor                    # diagnose repo, cache, remotes and DVC coexistence
 ```
 
-Already have a DVC repo? Skip `init` and point `lode` at it — same format, both tools interoperate.
+Already have a DVC repo? Skip `init` and point `lode` at it for the supported commands — same DVC format, no migration.
 
 | Command | What it does |
 |---|---|
-| `init` | Create a repo byte-compatible with `dvc init` — standalone, no Python required |
+| `init` | Create a DVC-compatible repo — standalone, no Python required |
 | `add` | Hash (in parallel), cache, write the `.dvc`, update `.gitignore` |
 | `status` | Report changes using the state DB (no re-hash of unchanged data); `--json` |
-| `push` / `fetch` / `pull` | Sync with an S3-compatible remote (AWS S3, MinIO, Cloudflare R2, Backblaze B2) |
+| `push` / `fetch` / `pull` | Sync with S3-compatible object storage; MinIO is covered in integration tests |
 | `checkout` | Materialize the workspace (reflink → hardlink/symlink → copy) |
 | `gc` | Remove unreferenced objects from the cache (and remote with `-c`) |
 | `verify` | Re-hash cached objects and check they match their recorded hash — proves integrity and, on a DVC repo, that lode computes the same hashes |
@@ -155,15 +158,17 @@ storing static keys in `.dvc/config`, because `.dvc/config` is plain text.
 
 ## DVC compatibility
 
-- **Byte-identical** `.dvc` files and `.dir` objects to DVC 3.x — verified by a
-  byte-oracle test that compares `lode`'s output against the real `dvc` binary.
+- **Byte-compatible for tested `dvc add` file and directory outputs** — verified by a
+  byte-oracle test that compares `lode`'s `.dvc` and `.dir` output against the real
+  `dvc` binary.
 - Same content-addressed layout in cache and remote (`files/md5/<2>/<rest>`).
-- **Bidirectional interop**: objects `lode` pushes are pulled by DVC and vice versa
-  (validated end-to-end against MinIO).
+- **Bidirectional interop for the integration suite**: objects `lode` pushes are pulled
+  by DVC and vice versa in the MinIO-backed tests.
 - Reads the legacy DVC 2.x cache layout.
 
-This is validated, not aspirational: the test suite runs against a real DVC 3.67.1
-install and a real S3-compatible server. The tested surface is tracked in
+This is validated where it matters most for format risk: CI runs the byte-oracle
+against a real DVC 3.67.1 install and runs the MinIO interop suite against a live
+S3-compatible server. The tested surface is tracked in
 [docs/compatibility.md](docs/compatibility.md).
 
 ## Benchmarks
@@ -173,23 +178,25 @@ median of 6 runs (execution order alternated to remove page-cache bias):
 
 | operation | DVC | lode | speedup |
 |-----------|----:|-----:|--------:|
-| `add` (cold) | 25.40s | 2.05s | **12.4×** |
-| `status` (no change) | 3.46s | 1.16s | **3.0×** |
-| `add` (1 file changed, of 100k) | 6.10s | 0.46s | **13.2×** |
+| `add` (fresh repo, warm page cache) | 25.40s | 2.05s | **12.4x** |
+| `status` (no change) | 3.46s | 1.16s | **3.0x** |
+| `add` (1 file changed, of 100k) | 6.10s | 0.46s | **13.2x** |
 
-…and `dvc status` then reports *"up to date"* on the repo `lode` produced — drop-in, no
-migration (the harness asserts this every run). The last row is the structural win:
+...and `dvc status` then reports *"up to date"* on the repo `lode` produced for the
+tested `add` outputs. The harness asserts this every run. The last row is the
+structural win:
 change one file in a 100k dataset and DVC re-processes the directory; lode's state DB
-skips the rest. The gap is ~12× on many small files and **narrows to ~3.7× on large
-files** (both become hash-bound — shown honestly). Full methodology (median±σ, memory,
+skips the rest. The gap is ~12x on many small files and **narrows to ~3.7x on large
+files** (both become hash-bound — shown honestly). Full methodology (median +/- stddev, memory,
 file-size regimes) and the documented DVC slowness this addresses:
 **[BENCHMARKS.md](BENCHMARKS.md)**. Reproduce with [`scripts/benchmark.sh`](scripts/benchmark.sh). See also [Try without risk](docs/try-without-risk.md).
 
 ## How it works
 
 - **Parallel, bounded hashing** (errgroup capped at `NumCPU`) with a reused buffer pool.
-- **State DB** (embedded, pure-Go) keyed by `(inode, mtime, size)` → hash, so `status`
-  and re-`add` skip files that didn't change.
+- **State DB** (embedded, pure-Go) keyed by file metadata -> hash, so `status` and
+  re-`add` skip files that did not change. Use `--rehash` for safety-critical checks,
+  NFS/restored-backup edge cases, or whenever metadata cannot be trusted.
 - **Atomic, batched writes**: no per-file fsync, no per-file DB transaction — the two
   changes that turned an early 78 s run into 0.44 s.
 - **Zero cgo** end-to-end, so the binary cross-compiles to every target without a C toolchain.
@@ -197,7 +204,9 @@ file-size regimes) and the documented DVC slowness this addresses:
 ## Scope
 
 In scope today: the data-versioning core — `add`, `status`, `checkout`, `push`,
-`fetch`, `pull`, `gc` — over a local cache and S3-compatible remotes.
+`fetch`, `pull`, `gc` — over a local cache and S3-compatible object storage. MinIO is
+covered by CI integration tests; provider-specific S3-compatible services should work
+through the same API but need more field reports.
 
 Not yet (planned / feedback-driven): the pipelines / `repro` engine, and non-S3
 remotes (GCS, Azure, SSH).
@@ -211,16 +220,18 @@ make test          # full suite — needs MinIO and the real `dvc` binary
 make lint
 ```
 
-The full integration/oracle suite expects a MinIO (`MINIO_ENDPOINT`, `MINIO_ACCESS_KEY`,
-`MINIO_SECRET_KEY`), the reference `dvc` (`DVC_BIN`), and the built binary (`LODE_BIN`).
+CI runs unit tests, the DVC byte-oracle, and the MinIO-backed integration suite. To
+run the integration suite locally, provide a MinIO (`MINIO_ENDPOINT`,
+`MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`), the reference `dvc` (`DVC_BIN`), and the
+built binary (`LODE_BIN`).
 See `tests/` for details. Contributions: see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Project status
 
 lode is young and currently maintained by one person. The honest reason that's
 low-risk to depend on: **lode does not own your data or its format.** Your repo is a
-standard DVC repo — if lode stalls or you walk away, uninstall it and keep using `dvc`,
-no migration, no export. The byte-compatibility that makes that true is enforced by a
+standard DVC repo — if lode stalls or you walk away, keep using `dvc`, no migration,
+no export. The tested byte-compatibility that makes that true is enforced by a
 test that runs against the real `dvc` on every CI build. Roadmap and how to help:
 [ROADMAP.md](ROADMAP.md), [CONTRIBUTING.md](CONTRIBUTING.md), [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 

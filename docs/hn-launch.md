@@ -15,12 +15,13 @@ walking and hashing.
 
 The idea is deliberately narrow. lode is not a new data-versioning format and it is
 not trying to replace all of DVC. It reimplements the data-versioning hot path in Go
-while writing the same `.dvc` files, `.dir` objects, cache layout, and S3-compatible
-remote layout that DVC expects.
+while writing DVC-compatible `.dvc` files, `.dir` objects, cache layout, and
+S3-compatible object paths for the supported commands.
 
 So the intended usage is: point it at an existing DVC repo, run `lode add` or
 `lode status` for the fast path, and keep using DVC for everything else. If you stop
-using lode, there is no export step. Just keep using DVC on the same repo.
+using lode, there is no export step. Review/revert any trial metadata you do not want,
+then keep using DVC on the same repo.
 
 On Tiny-ImageNet (100,200 files), `lode add` is 12.4x faster than DVC 3.67.1, and an
 incremental add after changing one file is 13.2x faster. The benchmark doc also shows
@@ -28,8 +29,10 @@ where the advantage shrinks: on large files both tools become mostly hash-bound.
 
 The project is still early. The supported scope today is the core data commands
 (`init`, `add`, `status`, `checkout`, `push`, `fetch`, `pull`, `gc`, `verify`,
-`doctor`) with S3-compatible remotes. Pipelines / `dvc repro` are not implemented;
-for those, keep using DVC. Native GCS, Azure, and SSH remotes are still planned.
+`doctor`) with an S3-compatible remote implementation. MinIO is tested directly;
+provider-specific S3-compatible reports are welcome. Pipelines / `dvc repro` are not
+implemented; for those, keep using DVC. Native GCS, Azure, and SSH remotes are still
+planned.
 
 I would really value feedback from people with real DVC repos, especially if you have
 many-small-file datasets or S3-compatible remotes outside plain AWS S3. I am most
@@ -41,13 +44,14 @@ I built lode because DVC is useful, but `dvc add` / `dvc status` can be painfull
 on repos with lots of small files.
 
 lode is a small Go implementation of the DVC data-versioning hot path. It writes the
-same `.dvc` files, `.dir` objects, cache layout, and S3-compatible remote layout as
-DVC, so it is not a migration to a new format. Use lode for the fast path, keep using
-DVC for everything else, and stop using lode anytime without exporting anything.
+DVC-compatible `.dvc` files, `.dir` objects, cache layout, and S3-compatible object
+paths for the supported commands, so it is not a migration to a new format. Use lode
+for the fast path, keep using DVC for everything else, and stop using lode anytime
+without exporting anything.
 
 On Tiny-ImageNet (100,200 files), `lode add` is 12.4x faster than DVC 3.67.1. The
-project is early and scoped: core data commands and S3-compatible remotes work today;
-DVC pipelines, native GCS, Azure, and SSH do not yet.
+project is early and scoped: core data commands and an S3-compatible remote
+implementation work today; DVC pipelines, native GCS, Azure, and SSH do not yet.
 
 I would love feedback from people with real DVC repos, especially compatibility reports
 and benchmark results on large datasets.
@@ -66,13 +70,15 @@ and benchmark results on large datasets.
 
 **Why not contribute this to DVC?**
 
-The format stays DVC-compatible, so this is not trying to split the ecosystem. lode is
-focused on the hot path where a single static Go binary and parallel hashing help.
+The supported outputs stay DVC-compatible, so this is not trying to split the
+ecosystem. lode is focused on the hot path where a self-contained Go binary, parallel
+hashing, and batched writes help.
 
 **Is it safe for my data?**
 
-The safety property is DVC interoperability, not trust in a new format. lode writes
-standard DVC files and cache objects. If you stop using it, continue with DVC.
+The safety property is DVC interoperability for the supported command surface, not
+trust in a new format. lode writes standard DVC files and cache objects. If you stop
+using it, review/revert any trial metadata you do not want and continue with DVC.
 
 **Does this replace DVC?**
 

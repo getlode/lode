@@ -1,8 +1,8 @@
 # Try lode without risk
 
-`lode` is designed to be tested on a real DVC repository without migration. It writes
-standard DVC metadata and cache objects, so the rollback path is to stop using `lode`
-and keep using `dvc`.
+`lode` is designed to be tested on a real DVC repository without migration. For the
+commands it supports, it writes standard DVC metadata and cache objects. The important
+safety property is no format lock-in: you can stop using `lode` and keep using `dvc`.
 
 ## Fast path: existing DVC repo
 
@@ -47,13 +47,15 @@ Depending on the command, `lode` can update the same files DVC would update:
 
 ## Rollback
 
-There is no export step. Stop running `lode` and continue with `dvc`. If you tested in
-a copied repo, delete the copy. If you tested in-place and do not want the new DVC
-metadata, use normal Git review/revert on the `.dvc` and `.gitignore` changes before
-committing.
+There is no export step because there is no new format. Stop running `lode` and
+continue with `dvc`. If you tested in a copied repo, delete the copy. If you tested
+in-place and do not want the new metadata, use normal Git review/revert on the `.dvc`
+and `.gitignore` changes before committing. If you pushed during a trial, remote cache
+objects may remain until normal DVC/lode garbage collection removes unreferenced data.
 
 ## When not to use lode yet
 
 - You need `dvc repro` or pipeline orchestration. Keep using DVC for that.
 - Your primary remote is native GCS, Azure, or SSH. Use DVC until native support lands.
 - Your workflow depends on a DVC command not listed in the compatibility matrix.
+- You are on NFS/restored backups/safety-critical checks and cannot run `--rehash`.

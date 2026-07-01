@@ -43,6 +43,42 @@ jobs:
       - name: Byte-compat oracle vs real DVC
         run: go test ./tests/oracle/...
 
+  integration-minio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version: "1.25"
+      - name: Install reference DVC
+        run: pipx install "dvc[s3]" || pip install --user "dvc[s3]"
+      - name: Start MinIO
+        run: |
+          docker run -d --name lode-minio \
+            -p 9000:9000 \
+            -e MINIO_ROOT_USER=minioadmin \
+            -e MINIO_ROOT_PASSWORD=minioadmin \
+            minio/minio:latest server /data
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:9000/minio/health/ready >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs lode-minio
+          exit 1
+      - name: Full integration suite with MinIO and DVC
+        env:
+          MINIO_ENDPOINT: http://127.0.0.1:9000
+          MINIO_ACCESS_KEY: minioadmin
+          MINIO_SECRET_KEY: minioadmin
+        run: |
+          go build -o ./lode ./cmd/lode
+          export LODE_BIN="$PWD/lode"
+          export DVC_BIN="$(command -v dvc)"
+          test -n "$DVC_BIN"
+          go test ./tests/integration/...
+
   vuln:
     runs-on: ubuntu-latest
     steps:
