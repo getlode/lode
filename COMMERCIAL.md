@@ -1,21 +1,13 @@
-# Commercial Support & Services
+# Commercial Use
 
-lode's core is open source under the [MPL-2.0](LICENSE) — free to use, **including
-commercially and inside closed-source products**. MPL is file-level copyleft: you only
-have to share changes you make to lode's own files, and you can combine it with
-proprietary code. **There is no separate license to buy** to use or embed lode.
+lode is open source under the [MPL-2.0](LICENSE). You can use it for personal,
+academic, internal, and commercial work, including inside closed-source products.
+There is no separate license to buy.
 
-What we offer commercially is built *around* the core, not gated inside it:
+MPL is file-level copyleft: if you modify lode itself and distribute that modified
+version, those changes to lode files stay under MPL. You can still combine the
+binary or unmodified source with proprietary systems.
 
-- **Priority support & SLAs** for teams running lode in production.
-- **Hosted / managed** data-versioning infrastructure (planned).
-- **Enterprise add-ons** (planned) — e.g. access control, audit, dashboards — as
-  separate products, while the core stays open.
-
-Interested? Email **j.s.torchia@gmail.com** with your company, use case, and scale.
-
-> **Why MPL instead of AGPL + a commercial license?** MPL keeps the core genuinely open
-> and copyleft (improvements to lode's own files stay open) without the AGPL network
-> clause that blocks adoption in many organizations — and for a CLI that runs on your own
-> machines, that clause rarely applied anyway. We'd rather be in your stack than sell you
-> a waiver.
+There is no hosted product or paid plan today. If your team is trying lode and needs
+help with a real DVC repo, open an issue or email **j.s.torchia@gmail.com** with the
+repo shape, remote type, and scale.

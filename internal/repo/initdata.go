@@ -5,8 +5,8 @@
 package repo
 
 // Byte-exact templates matching what `dvc init` (DVC 3.x) writes. Captured from
-// the reference implementation; see specs/002-init-onboarding/research.md. Any
-// change here must keep the init oracle test green (Constitution I/II).
+// the reference implementation. Any
+// change here must keep the init oracle test green.
 const (
 	// dvcignoreTemplate is the root .dvcignore DVC writes (139 bytes).
 	dvcignoreTemplate = "# Add patterns of files dvc should ignore, which could improve\n" +

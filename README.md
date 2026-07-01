@@ -240,8 +240,7 @@ test that runs against the real `dvc` on every CI build. Roadmap and how to help
 **[MPL-2.0](LICENSE)** — free to use, modify, and ship, **including commercially and
 inside closed-source products**. MPL is file-level copyleft: changes to lode's own files
 stay open, but you can combine it with proprietary code, and there's no license to buy.
-Optional commercial **support and services** are offered around the core — see
-[COMMERCIAL.md](COMMERCIAL.md).
+Commercial use is allowed under MPL-2.0; see [COMMERCIAL.md](COMMERCIAL.md) for the plain-English licensing note.
 
 Contributions are accepted under a [DCO](https://developercertificate.org/) (sign off
 with `git commit -s`) — no CLA, no copyright assignment. See [CONTRIBUTING.md](CONTRIBUTING.md).

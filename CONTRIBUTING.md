@@ -26,11 +26,9 @@ make test         # full suite (needs MinIO + the real dvc binary, see README)
 make lint
 ```
 
-## Ground rules (from the project constitution)
+## Ground rules
 
-The project has non-negotiable invariants — see
-[`.specify/memory/constitution.md`](.specify/memory/constitution.md). The ones
-that most affect contributions:
+The project has a few non-negotiable invariants that most affect contributions:
 
 - **DVC byte-compatibility is non-negotiable.** Anything that changes a
   serialized artifact (`.dvc`, `.dir`, cache/remote layout) MUST keep the

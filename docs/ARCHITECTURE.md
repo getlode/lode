@@ -21,7 +21,7 @@ lode is a CLI (`cmd/lode`) over a library of single-purpose packages under
 
 **Byte-compatibility with DVC.** Anything that changes a serialized artifact (`.dvc`,
 `.dir`, cache/remote layout) must keep the oracle test (`tests/oracle/`, which runs the
-real `dvc` and compares bytes) green. See [`.specify/memory/constitution.md`](../.specify/memory/constitution.md).
+real `dvc` and compares bytes) green.
 
 ## Correctness of the state cache
 
@@ -36,7 +36,6 @@ rehash path. A corrupt or unreadable state DB also degrades to a full rehash.
 - Commands: `internal/cli/<command>.go`
 - Format-risk logic (most careful code): `internal/dvcfile`, `internal/hashfile/tree.go`
 - Tests: `tests/oracle` (byte-compat vs real DVC), `tests/integration` (MinIO, interop, doctor, verify)
-- Specs per feature: `specs/<NNN>-<name>/`
 
 ## Build & test
 
