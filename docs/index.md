@@ -7,6 +7,4 @@ DVC `add` and `status`, much faster. Same repo. No migration.
 - [Benchmarks](https://github.com/getlode/lode/blob/main/BENCHMARKS.md)
 - [GitHub repository](https://github.com/getlode/lode)
 
-This page is intentionally minimal so GitHub Pages can be enabled before buying a
-domain. The README remains the main landing page until the project has more adoption
-signals.
+This page is intentionally minimal. The README remains the main landing page.
