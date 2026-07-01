@@ -43,7 +43,7 @@ brews:
       name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
     homepage: "https://github.com/getlode/lode"
-    description: "Fast, drop-in compatible reimplementation of DVC's data-versioning core, in Go"
+    description: "Fast DVC-compatible accelerator for add/status and S3-backed data sync, in Go"
     license: "MPL-2.0"
     test: |
       system "#{bin}/lode", "--version"

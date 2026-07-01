@@ -8,4 +8,4 @@ labels: enhancement
 
 **Proposed behavior**
 
-**Does DVC do this today?** (helps keep lode drop-in compatible)
+**Does DVC do this today?** (helps keep lode compatible with existing DVC repos)

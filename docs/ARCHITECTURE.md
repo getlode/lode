@@ -8,8 +8,8 @@ lode is a CLI (`cmd/lode`) over a library of single-purpose packages under
 | Package | Responsibility |
 |---|---|
 | `cli` | Cobra commands; flag parsing; user-facing output and guided errors. Thin — delegates to the packages below. |
-| `repo` | Repository discovery, `init` (byte-compatible with `dvc init`), `.dvc/config` (INI), well-known paths, git detection. |
-| `dvcfile` | Read/write `.dvc` files **byte-exact** with DVC 3.x. |
+| `repo` | Repository discovery, `init` compatible with DVC repo structure, `.dvc/config` (INI), well-known paths, git detection. |
+| `dvcfile` | Read/write `.dvc` files in the tested DVC 3.x-compatible format. |
 | `hashfile` | MD5 hashing (parallel, bounded to NumCPU); the `.dir` manifest serialization (the trickiest compat detail — matches Python's `json.dumps`); the state DB (bbolt) that skips re-hashing unchanged files. |
 | `cache` | Content-addressed object store (`files/md5/<2>/<rest>`), atomic writes, `0o444` protection, legacy 2.x read. |
 | `remote` | S3-compatible backend (minio-go): object↔key mapping, presence, transfer, reachability. |

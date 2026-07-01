@@ -1,8 +1,8 @@
 <!-- SPECKIT START -->
 ## Proyecto: lode (github.com/getlode/lode)
 
-Reescritura en Go del núcleo de versionado de DVC. Binario `lode`, drop-in
-compatible con DVC 3.x. Go 1.23+ (`CGO_ENABLED=0`). Stack: cobra, **minio-go**
+Acelerador en Go para el camino caliente de versionado de datos de DVC. Binario `lode`,
+compatible con repos DVC 3.x para los comandos soportados. Go 1.25+ (`CGO_ENABLED=0`). Stack: cobra, **minio-go**
 (remotes S3-compatible), bbolt (state), gofrs/flock (lock), x/sys/unix (reflink).
 
 - **001-dvc-go** — ✅ implementado: add, status, checkout, push, pull, fetch, gc.

@@ -23,7 +23,7 @@ import (
 func newAddCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "add <target>...",
-		Short: "Track files or directories (drop-in compatible with DVC)",
+		Short: "Track files or directories in DVC-compatible format",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				return errAddNoTarget

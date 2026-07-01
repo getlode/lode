@@ -21,7 +21,7 @@ func SetVersion(v string) { version = v }
 func newRootCmd() *cobra.Command {
 	root := &cobra.Command{
 		Use:           "lode",
-		Short:         "Fast, drop-in compatible data versioning (DVC 3.x)",
+		Short:         "Fast DVC-compatible data versioning for add/status and S3 sync",
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		Version:       version,
