@@ -1,30 +1,64 @@
 # lode
 
-**A fast, drop-in compatible reimplementation of [DVC](https://dvc.org)'s data-versioning core, in Go.**
+**DVC `add` and `status`, much faster. Same repo. No migration.**
 
 [![CI](https://github.com/getlode/lode/actions/workflows/ci.yml/badge.svg)](https://github.com/getlode/lode/actions/workflows/ci.yml)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](LICENSE)
-[![Go 1.23+](https://img.shields.io/badge/Go-1.23%2B-00ADD8.svg)](go.mod)
+[![Go 1.25+](https://img.shields.io/badge/Go-1.25%2B-00ADD8.svg)](go.mod)
 
-Point `lode` at your existing DVC repository and get the same format — identical
-`.dvc` files, the same `.dir` objects, the same cache and remote layout — but as a
-single static binary with parallel hashing. On large datasets it is **~10× faster**
-than DVC-Python, and it coexists with DVC on the same repo: run either tool, in
-either order.
+`lode` is a DVC-compatible data-versioning core in Go. Point it at an existing DVC
+repo and it writes the same `.dvc` files, `.dir` objects, local cache layout, and
+S3-compatible remote layout as DVC. If you stop using it, nothing is trapped in a new
+format: uninstall `lode` and keep using `dvc` on the same files.
 
 ```console
 $ time dvc add big/      # 20,000 files
 real    0m5.79s
 
-$ time lode add big/     # same repo, same result, byte-identical metadata
+$ time lode add big/     # same repo, byte-identical DVC metadata
 real    0m0.44s
 ```
 
-> **Zero lock-in — this is the point.** lode never invents a format; your repo *stays*
-> a DVC repo. Trying it is risk-free: run `lode` on your real repo, and if you ever want
-> out, just uninstall it and keep using `dvc` on the exact same files. `lode verify` (and
-> `dvc status`) prove the objects are byte-identical. lode **accelerates the daily hot
-> path and coexists with DVC** — it is not a new system to migrate to.
+On a Tiny-ImageNet benchmark with 100,200 files, `lode add` is **12.4x faster** and
+incremental `add` after changing one file is **13.2x faster** than DVC 3.67.1. The
+benchmark harness verifies that `dvc status` accepts the repo produced by `lode`.
+
+## Try it safely on a DVC repo
+
+```bash
+brew install getlode/tap/lode
+cd your-existing-dvc-repo
+lode doctor
+lode status
+lode add path/to/data
+lode verify
+# Optional proof: DVC should still read the repo normally.
+dvc status
+```
+
+Nothing migrates. `lode` only writes standard DVC files and cache objects. The safe
+rollback is deleting the `lode` binary and continuing with DVC. For a more careful
+copy-based trial, see [Try without risk](docs/try-without-risk.md).
+
+## Current scope
+
+| Works today | Not yet |
+|---|---|
+| `init`, `add`, `status`, `checkout`, `push`, `fetch`, `pull`, `gc`, `verify`, `doctor` | `dvc repro` / pipelines |
+| Existing DVC 3.x repos and legacy DVC 2.x cache reads | Native `gs://`, Azure, SSH remotes |
+| S3-compatible remotes: AWS S3, MinIO, Cloudflare R2, Backblaze B2 | Replacing every DVC command |
+
+See the [compatibility matrix](docs/compatibility.md) for the tested surface and known limits.
+
+## Help wanted
+
+The most useful feedback right now is a real DVC repo trial: run `lode doctor`,
+`lode status`, `lode add`, then `dvc status`, and report the result in
+[#23](https://github.com/getlode/lode/issues/23). Good early contribution areas are
+native [GCS](https://github.com/getlode/lode/issues/24),
+[Azure](https://github.com/getlode/lode/issues/25), and
+[SSH](https://github.com/getlode/lode/issues/26) remotes, plus
+[benchmark reports](https://github.com/getlode/lode/issues/27) on real datasets.
 
 ## Why
 
@@ -129,7 +163,8 @@ storing static keys in `.dvc/config`, because `.dvc/config` is plain text.
 - Reads the legacy DVC 2.x cache layout.
 
 This is validated, not aspirational: the test suite runs against a real DVC 3.67.1
-install and a real S3-compatible server.
+install and a real S3-compatible server. The tested surface is tracked in
+[docs/compatibility.md](docs/compatibility.md).
 
 ## Benchmarks
 
@@ -148,7 +183,7 @@ change one file in a 100k dataset and DVC re-processes the directory; lode's sta
 skips the rest. The gap is ~12× on many small files and **narrows to ~3.7× on large
 files** (both become hash-bound — shown honestly). Full methodology (median±σ, memory,
 file-size regimes) and the documented DVC slowness this addresses:
-**[BENCHMARKS.md](BENCHMARKS.md)**. Reproduce with [`scripts/benchmark.sh`](scripts/benchmark.sh).
+**[BENCHMARKS.md](BENCHMARKS.md)**. Reproduce with [`scripts/benchmark.sh`](scripts/benchmark.sh). See also [Try without risk](docs/try-without-risk.md).
 
 ## How it works
 
